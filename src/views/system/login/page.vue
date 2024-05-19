@@ -23,7 +23,10 @@
           class="page-login--content-main"
           flex="dir:top main:center cross:center">
           <!-- logo -->
-          <img class="page-login--logo" src="./image/logo@2x.png">
+          <div class="logo">
+            <img class="page-login--logo" src="./image/xiaomi.png">
+            <span class="page-login--text">小米售后服务系统</span>
+          </div>
           <!-- form -->
           <div class="page-login--form">
             <el-card shadow="never">
@@ -33,6 +36,16 @@
                 :rules="rules"
                 :model="formLogin"
                 size="default">
+                <el-form-item prop="username">
+                  <el-switch
+                    v-model="isWorder"
+                    inactive-text="普通用户登录"
+                    active-text="工程师登录"
+                    inactive-color="#409EFF"
+                    class="mySwitch"
+                    >
+                  </el-switch>
+                </el-form-item>
                 <el-form-item prop="username">
                   <el-input
                     type="text"
@@ -49,16 +62,6 @@
                     <i slot="prepend" class="fa fa-keyboard-o"></i>
                   </el-input>
                 </el-form-item>
-                <el-form-item prop="code">
-                  <el-input
-                    type="text"
-                    v-model="formLogin.code"
-                    placeholder="验证码">
-                    <template slot="append">
-                      <img class="login-code" src="./image/login-code.png">
-                    </template>
-                  </el-input>
-                </el-form-item>
                 <el-button
                   size="default"
                   @click="submit"
@@ -71,8 +74,9 @@
             <p
               class="page-login--options"
               flex="main:justify cross:center">
-              <span><d2-icon name="question-circle"/> 忘记密码</span>
-              <span>注册用户</span>
+<!--              <span><d2-icon name="question-circle"/> 忘记密码</span>-->
+<!--              <span>注册用户</span>-->
+              <router-link to="/reg" tag="span">注册用户</router-link>
             </p>
             <!-- quick login -->
           </div>
@@ -118,12 +122,14 @@ import dayjs from 'dayjs'
 import { mapActions } from 'vuex'
 import localeMixin from '@/locales/mixin.js'
 import { login } from '@/api/comment/login'
+import { WorkerLogin } from '@/api/comment/workerLogin'
 export default {
   mixins: [
     localeMixin
   ],
   data () {
     return {
+      isWorder: true,
       timeInterval: null,
       time: dayjs().format('HH:mm:ss'),
       // 快速选择用户
@@ -200,34 +206,25 @@ export default {
       console.log('走到了')
       this.$refs.loginForm.validate((valid) => {
         if (valid) {
-          login({
-            name: this.formLogin.username,
-            password: this.formLogin.password
-          })
-            .then((data) => {
-              this.login({ username: data.data.data.name, password: data.data.data.name})
-              this.$router.replace(this.$route.query.redirect || '/')
+          if (this.isWorder) {
+            WorkerLogin({
+              name: this.formLogin.username,
+              password: this.formLogin.password
             })
-        } else {
-          // 登录表单校验失败
-          this.$message.error('表单校验失败，请检查')
-        }
-      })
-    },
-    submit1 () {
-      this.$refs.loginForm.validate((valid) => {
-        if (valid) {
-          // 登录
-          // 注意 这里的演示没有传验证码
-          // 具体需要传递的数据请自行修改代码
-          this.login({
-            username: this.formLogin.username,
-            password: this.formLogin.password
-          })
-            .then(() => {
-              // 重定向对象不存在则返回顶层路径
-              this.$router.replace(this.$route.query.redirect || '/')
+              .then((data) => {
+                this.login({ username: data.data.data.name, password: data.data.data.name })
+                this.$router.replace(this.$route.query.redirect || '/')
+              })
+          } else {
+            login({
+              name: this.formLogin.username,
+              password: this.formLogin.password
             })
+              .then((data) => {
+                this.login({ username: data.data.data.name, password: data.data.data.name })
+                this.$router.replace(this.$route.query.redirect || '/')
+              })
+          }
         } else {
           // 登录表单校验失败
           this.$message.error('表单校验失败，请检查')
@@ -242,6 +239,7 @@ export default {
 .page-login {
   @extend %unable-select;
   $backgroundColor: #F0F2F5;
+   background-image: url('./image/xiaomi2.webp');
   // ---
   background-color: $backgroundColor;
   height: 100%;
@@ -258,7 +256,7 @@ export default {
   .page-login--layer-time {
     font-size: 24em;
     font-weight: bold;
-    color: rgba(0, 0, 0, 0.03);
+    color: rgba(255, 255, 255, 0.07);
     overflow: hidden;
   }
   // 登陆页面控件的容器
@@ -278,14 +276,35 @@ export default {
     }
   }
   // main
-  .page-login--logo {
-    width: 240px;
-    margin-bottom: 2em;
-    margin-top: -2em;
+  .logo {
+      width: 280px;
+      display: flex;
+      align-items: center; /* 垂直居中对齐子元素 */
+      justify-content: space-around; /* 水平方向上子元素分布在两端 */
+      margin-top: -2em;
+      margin-bottom: 2em;
+    .page-login--logo {
+      width: 60px;
+      /*margin-bottom: 2em;*/
+      /*margin-top: -2em;*/
+    }
+    .page-login--text {
+        /* 设置文字的行高与图片高度大致相等，这可能需要你手动调整 */
+        line-height: 40px; /* 假设图片的高度大约是 40px */
+        vertical-align: top; /* 与图片顶部对齐（虽然在这个 flex 布局中可能不需要）*/
+        color: white;
+        font-size: 20px;
+         font-weight: bold; /* 设置文本加粗 */
+      }
   }
   // 登录表单
   .page-login--form {
-    width: 280px;
+    .mySwitch {
+      display: flex;
+      align-items: center; /* 垂直居中对齐子元素 */
+      justify-content: space-around;
+    }
+    width: 350px;
     // 卡片
     .el-card {
       margin-bottom: 15px;
@@ -313,6 +332,9 @@ export default {
       color: $color-primary;
       margin-bottom: 15px;
       font-weight: bold;
+      display: flex;
+      align-items: center; /* 垂直居中对齐子元素 */
+      justify-content: space-around;
     }
     .page-login--quick {
       width: 100%;

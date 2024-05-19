@@ -1,6 +1,6 @@
 <template>
   <d2-container class="page">
-    <h1>欢迎来到小米售后服务系统</h1>
+    <h1>我的消息</h1>
   </d2-container>
 </template>
 

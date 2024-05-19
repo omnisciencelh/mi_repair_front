@@ -7,9 +7,9 @@
 </template>
 
 <script>
-  export default {
-    name: 'userOrder'
-  }
+export default {
+  name: 'userOrder'
+}
 </script>
 
 <style scoped>
