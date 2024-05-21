@@ -8,7 +8,7 @@
 
 <script>
 export default {
-  name: 'repair'
+  name: 'repairList'
 }
 </script>
 

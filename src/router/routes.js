@@ -26,28 +26,58 @@ const frameIn = [
         path: 'userOrder',
         name: '用户下单',
         meta: {
-          title: '用户下单2',
+          title: '用户下单',
           auth: true
         },
         component: _import('user/order')
       },
+      // 用户下单记录
+      {
+        path: 'myOrder',
+        name: '订单记录',
+        meta: {
+          title: '订单记录',
+          auth: true
+        },
+        component: _import('user/myOrder')
+      },
+      // 用户支付流水
+      {
+        path: 'payList',
+        name: '订单记录',
+        meta: {
+          title: '订单记录',
+          auth: true
+        },
+        component: _import('user/payList')
+      },
       {
         path: 'applyMaterial',
-        name: '用户下单',
+        name: '申请材料',
         meta: {
-          title: '用户下单2',
+          title: '申请材料',
           auth: true
         },
         component: _import('worder/applyMaterial')
       },
       {
         path: 'repair',
-        name: '用户下单',
+        name: '维修工单',
         meta: {
-          title: '用户下单2',
+          title: '维修工单',
           auth: true
         },
         component: _import('worder/repair')
+      },
+      // 所有维修工单列表
+      {
+        path: 'repairList',
+        name: '工单列表',
+        meta: {
+          title: '工单列表',
+          auth: true
+        },
+        component: _import('worder/repairList')
       },
       // 系统 前端日志
       {

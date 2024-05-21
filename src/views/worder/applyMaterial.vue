@@ -7,9 +7,9 @@
 </template>
 
 <script>
-  export default {
-    name: 'applyMaterial'
-  }
+export default {
+  name: 'applyMaterial'
+}
 </script>
 
 <style scoped>
