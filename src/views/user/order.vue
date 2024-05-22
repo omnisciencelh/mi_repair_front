@@ -68,7 +68,7 @@ export default {
         ],
         sn: [
           { required: true, message: '请至少选择一个sn信息', trigger: 'change' },
-          { min: 1, max: 30, message: '长度在 1 到 30 个字符', trigger: 'blur' }
+          { min: 1, max: 15, message: '长度在 1 到 15 个字符', trigger: 'blur' }
         ],
         desc: [
           { required: true, message: '请填写活动形式', trigger: 'blur' }

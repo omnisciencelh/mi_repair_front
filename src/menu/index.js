@@ -22,16 +22,17 @@ export const menuHeader = supplementPath([
     icon: 'folder-o',
     children: [
       { path: '/userOrder', title: '用户下单' },
-      { path: '/myOrder', title: '下单记录' }
+      { path: '/myOrder', title: '下单记录' },
+      { path: '/payList', title: '账单流水' }
     ]
   },
   {
     title: '工程师应用',
     icon: 'folder-o',
     children: [
+      { path: '/repairList', title: '工单列表' },
       { path: '/repair', title: '维修列表' },
-      { path: '/applyMaterial', title: '申请材料' },
-      { path: '/repairList', title: '工单列表' }
+      { path: '/applyMaterial', title: '申请材料' }
     ]
   }
 ])
@@ -44,16 +45,16 @@ export const menuAside = supplementPath([
     children: [
       { path: '/userOrder', title: '用户下单' },
       { path: '/myOrder', title: '下单记录' },
-      { path: '/payList', title: '支付流水' }
+      { path: '/payList', title: '账单流水' }
     ]
   },
   {
     title: '工程师功能',
     icon: 'folder-o',
     children: [
-      { path: '/repair', title: '维修列表' },
-      { path: '/applyMaterial', title: '申请材料' },
-      { path: '/payList', title: '支付流水' }
+      { path: '/repairList', title: '工单列表' },
+      { path: '/repair', title: '我的维修列表' },
+      { path: '/applyMaterial', title: '申请材料' }
     ]
   }
 ])
