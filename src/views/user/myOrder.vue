@@ -57,18 +57,24 @@
             <el-table-column
               property="statusInfo"
               label="工单状态">
+              <template slot-scope="scope">
+                <span :class="{ 'red-button': scope.row.status === 3 || scope.row.status === 17 }">
+                  {{ scope.row.status === 3 ?'您已取消工单':scope.row.statusInfo }}
+                </span>
+              </template>
             </el-table-column>
             <el-table-column
               fixed="right"
               label="操作"
-              width="250">
+              width="300">
               <template slot-scope="scope">
+                <el-button @click="searchOrderInfo(scope.row.id)" type="text">查看详情</el-button>
                 <el-button @click="scheduleSearch(scope.row)" type="text">进度查询</el-button>
                 <el-button v-if="scope.row.status===1" @click="confirmOrder(scope.row)" type="text">确认工单</el-button>
                 <el-button v-if="scope.row.status===1  || scope.row.status===14" @click="cancelOrder(scope.row)" type="text">取消工单</el-button>
-                <el-button v-if="scope.row.status===3" type="text" class="red-button">您已经取消工单</el-button>
-                <el-button v-if="scope.row.status===17" type="text" class="red-button">维修失败</el-button>
-                <el-button v-if="scope.row.status===21" type="text" class="red-button">待支付</el-button>
+                <el-button v-if="scope.row.status===21" type="text" class="green-button">去支付</el-button>
+<!--                <el-button v-if="scope.row.status===3" type="text" class="red-button">您已经取消工单</el-button>-->
+<!--                <el-button v-if="scope.row.status===17" type="text" class="red-button">维修失败</el-button>-->
               </template>
             </el-table-column>
           </el-table>
@@ -84,6 +90,7 @@
         </div>
       </el-footer>
     </el-container>
+    <order-info :showModal="showModal" @closeModal="closeModal" :orderId="orderId"></order-info>
   </d2-container>
 </template>
 
@@ -111,8 +118,61 @@ export default {
         status: 2,
         statusInfo: '待用户确认',
         createTime: '2024-05-16 10:32'
-      }],
-      currentRow: null
+      },
+      {
+        id: '',
+        userName: '肖战',
+        userNumber: '110',
+        userAddr: '花果山水帘洞',
+        goodsInfo: '不知道',
+        sn: 'asdasdsd',
+        desc: '就是死了',
+        status: 1,
+        statusInfo: '待确认工单',
+        createTime: '2024-05-16 10:32'
+      },
+      {
+        id: '',
+        userName: '肖战',
+        userNumber: '110',
+        userAddr: '花果山水帘洞',
+        goodsInfo: '不知道',
+        sn: 'asdasdsd',
+        desc: '就是死了',
+        status: 21,
+        statusInfo: '待支付',
+        createTime: '2024-05-16 10:32'
+      },
+      {
+        id: '',
+        userName: '肖战',
+        userNumber: '110',
+        userAddr: '花果山水帘洞',
+        goodsInfo: '不知道',
+        sn: 'asdasdsd',
+        desc: '就是死了',
+        status: 3,
+        statusInfo: '已取消工单',
+        createTime: '2024-05-16 10:32'
+      },
+      {
+        id: '',
+        userName: '肖战',
+        userNumber: '110',
+        userAddr: '花果山水帘洞',
+        goodsInfo: '不知道',
+        sn: 'asdasdsd',
+        desc: '就是死了',
+        status: 17,
+        statusInfo: '维修失败',
+        createTime: '2024-05-16 10:32'
+      }
+      ],
+      currentRow: null,
+      // 用于控制遮盖层
+      showModal: false,
+      // 用户查询工单详情
+      orderId: ''
     }
   },
   created () {
@@ -155,6 +215,15 @@ export default {
     // 用户取消工单
     cancelOrder (row) {
       console.log(row)
+    },
+    // 查看订单详情
+    searchOrderInfo (id) {
+      this.showModal = true
+      this.orderId = id
+    },
+    // 关闭遮盖层
+    closeModal () {
+      this.showModal = false
     }
   }
 }
@@ -166,6 +235,10 @@ export default {
     .table-my-order {
       .red-button {
         color: red; /* 设置文本颜色为红色 */
+        background-color: transparent;
+      }
+      .green-button {
+        color: lawngreen; /* 设置文本颜色为红色 */
         background-color: transparent;
       }
     }

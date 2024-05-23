@@ -4,8 +4,8 @@
       <el-header>
         <div class="search">
           <el-form :inline="true" :model="searchForm" class="demo-form-inline">
-            <el-form-item label="sn信息">
-              <el-input v-model="searchForm.sn" placeholder="请输入内容"></el-input>
+            <el-form-item label="工单状态">
+              <el-input v-model="searchForm.status" placeholder="请输入内容"></el-input>
             </el-form-item>
             <el-form-item>
               <el-button type="primary" icon="el-icon-search" @click="searchOrder">搜索</el-button>
@@ -57,21 +57,26 @@
             <el-table-column
               property="statusInfo"
               label="工单状态">
+              <template slot-scope="scope">
+                <span :class="{ 'red-button': scope.row.status === 3 || scope.row.status === 17 }">
+                  {{ scope.row.statusInfo }}
+                </span>
+              </template>
             </el-table-column>
             <el-table-column
               fixed="right"
               label="操作"
-              width="250">
+              width="300">
               <template slot-scope="scope">
+                <el-button @click="searchOrderInfo(scope.row.id)" type="text">查看详情</el-button>
                 <el-button v-if="scope.row.status===0" @click="acceptOrder(scope.row)" type="text">接单</el-button>
                 <el-button v-if="scope.row.status!==0" @click="scheduleSearch(scope.row)" type="text">进度查询</el-button>
                 <el-button v-if="scope.row.status===15" @click="repairOver(scope.row)" type="text">维修完毕</el-button>
-                <el-button @click="searchOrderInfo(scope.row.id)" type="text">查看详情</el-button>
                 <el-button v-if="scope.row.status===15" @click="repairFail(scope.row)" type="text">维修失败</el-button>
                 <el-button v-if="scope.row.status===2" @click="repairFail(scope.row)" type="text">申请材料</el-button>
                 <el-button v-if="scope.row.status===16" @click="ReInspectionSuccess(scope.row)" type="text">复检成功</el-button>
-                <el-button v-if="scope.row.status===3" type="text" class="red-button">用户已取消工单</el-button>
-                <el-button v-if="scope.row.status===17" type="text" class="red-button">维修失败</el-button>
+<!--                <el-button v-if="scope.row.status===3" type="text" class="red-button">用户已取消工单</el-button>-->
+<!--                <el-button v-if="scope.row.status===17" type="text" class="red-button">维修失败</el-button>-->
               </template>
             </el-table-column>
           </el-table>
@@ -87,6 +92,7 @@
         </div>
       </el-footer>
     </el-container>
+    <order-info :showModal="showModal" @closeModal="closeModal" :orderId="orderId"></order-info>
   </d2-container>
 </template>
 
@@ -100,9 +106,7 @@ export default {
       currentPage: 1,
       total: '',
       searchForm: {
-        userName: '',
-        status: 0,
-        sn: '',
+        status: '',
         page: 1,
         pageSize: 5
       },
@@ -117,8 +121,72 @@ export default {
         status: 0,
         statusInfo: '待用户确认',
         createTime: '2024-05-16 10:32'
-      }],
-      currentRow: null
+      },
+      {
+        id: '',
+        userName: '肖战',
+        userNumber: '110',
+        userAddr: '花果山水帘洞',
+        goodsInfo: '不知道',
+        sn: 'asdasdsd',
+        desc: '就是死了',
+        status: 15,
+        statusInfo: '维修完毕',
+        createTime: '2024-05-16 10:32'
+      },
+      {
+        id: '',
+        userName: '肖战',
+        userNumber: '110',
+        userAddr: '花果山水帘洞',
+        goodsInfo: '不知道',
+        sn: 'asdasdsd',
+        desc: '就是死了',
+        status: 2,
+        statusInfo: '申请材料',
+        createTime: '2024-05-16 10:32'
+      },
+      {
+        id: '',
+        userName: '肖战',
+        userNumber: '110',
+        userAddr: '花果山水帘洞',
+        goodsInfo: '不知道',
+        sn: 'asdasdsd',
+        desc: '就是死了',
+        status: 3,
+        statusInfo: '用户已取消工单',
+        createTime: '2024-05-16 10:32'
+      },
+      {
+        id: '',
+        userName: '肖战',
+        userNumber: '110',
+        userAddr: '花果山水帘洞',
+        goodsInfo: '不知道',
+        sn: 'asdasdsd',
+        desc: '就是死了',
+        status: 16,
+        statusInfo: '复检成功',
+        createTime: '2024-05-16 10:32'
+      },
+      {
+        id: '',
+        userName: '肖战',
+        userNumber: '110',
+        userAddr: '花果山水帘洞',
+        goodsInfo: '不知道',
+        sn: 'asdasdsd',
+        desc: '就是死了',
+        status: 17,
+        statusInfo: '维修失败',
+        createTime: '2024-05-16 10:32'
+      }
+      ],
+      // 用于控制遮盖层
+      showModal: false,
+      // 用户查询工单详情
+      orderId: ''
     }
   },
   created () {
@@ -162,7 +230,16 @@ export default {
     // 复检成功
     ReInspectionSuccess () {},
     // 进度查询
-    scheduleSearch (row) {}
+    scheduleSearch (row) {},
+    // 查看订单详情
+    searchOrderInfo (id) {
+      this.showModal = true
+      this.orderId = id
+    },
+    // 关闭遮盖层
+    closeModal () {
+      this.showModal = false
+    }
   }
 }
 </script>
@@ -174,8 +251,12 @@ export default {
         .red-button {
           color: red; /* 设置文本颜色为红色 */
           background-color: transparent;
+          font-weight: bolder;
         }
       }
+    }
+    .box-card {
+      background: #4EFFFB;
     }
   }
 </style>
