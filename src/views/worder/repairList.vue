@@ -73,10 +73,8 @@
                 <el-button v-if="scope.row.status!==0" @click="scheduleSearch(scope.row)" type="text">进度查询</el-button>
                 <el-button v-if="scope.row.status===15" @click="repairOver(scope.row)" type="text">维修完毕</el-button>
                 <el-button v-if="scope.row.status===15" @click="repairFail(scope.row)" type="text">维修失败</el-button>
-                <el-button v-if="scope.row.status===2" @click="repairFail(scope.row)" type="text">申请材料</el-button>
+                <el-button v-if="scope.row.status===2" @click="applyMaterial(scope.row.id)" type="text">申请材料</el-button>
                 <el-button v-if="scope.row.status===16" @click="ReInspectionSuccess(scope.row)" type="text">复检成功</el-button>
-<!--                <el-button v-if="scope.row.status===3" type="text" class="red-button">用户已取消工单</el-button>-->
-<!--                <el-button v-if="scope.row.status===17" type="text" class="red-button">维修失败</el-button>-->
               </template>
             </el-table-column>
           </el-table>
@@ -93,6 +91,7 @@
       </el-footer>
     </el-container>
     <order-info :showModal="showModal" @closeModal="closeModal" :orderId="orderId"></order-info>
+    <apply-ma :showMaterial="showMaterial" @closeModal="closeModal" :orderId="orderId"></apply-ma>
   </d2-container>
 </template>
 
@@ -186,7 +185,9 @@ export default {
       // 用于控制遮盖层
       showModal: false,
       // 用户查询工单详情
-      orderId: ''
+      orderId: '',
+      // 用于控制申请材料表的遮盖层
+      showMaterial: false
     }
   },
   created () {
@@ -209,6 +210,7 @@ export default {
           })
         }).catch(error => {
         // TODO 需要完善
+          this.$message.error('接单失败')
           console.error('Error fetching data:', error)
         })
     },
@@ -226,7 +228,7 @@ export default {
     // 维修完毕
     repairOver () {},
     // 维修失败
-    repairFail () {},
+    repairFail (id) {},
     // 复检成功
     ReInspectionSuccess () {},
     // 进度查询
@@ -236,9 +238,14 @@ export default {
       this.showModal = true
       this.orderId = id
     },
-    // 关闭遮盖层
+    // 关闭工单详情的遮盖层
     closeModal () {
       this.showModal = false
+      this.showMaterial = false
+    },
+    // 申请材料
+    applyMaterial (id) {
+      this.showMaterial = true
     }
   }
 }

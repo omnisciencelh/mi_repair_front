@@ -214,7 +214,7 @@ export default {
               })
           } else {
             login({
-              name: this.formLogin.username,
+              userName: this.formLogin.username,
               password: this.formLogin.password
             })
               .then((data) => {

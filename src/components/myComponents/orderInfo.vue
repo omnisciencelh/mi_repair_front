@@ -72,7 +72,6 @@ export default {
     // 关闭遮盖层
     closeModal () {
       this.showModal = false
-      //  如果需要，可以触发一个事件来通知父组件模态框已关闭
       this.$emit('closeModal')
     },
     // 查询工单
@@ -84,6 +83,7 @@ export default {
           this.orderInfo = this.data.data.records[0]
         }).catch(error => {
         // TODO 需要完善
+          this.$message.error('查询失败')
           console.error('Error fetching data:', error)
         })
     }

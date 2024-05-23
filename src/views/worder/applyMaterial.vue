@@ -104,7 +104,7 @@ export default {
           createTime: '2016:11:11'
         },
         {
-          id: '5',
+          id: '6',
           orderId: '15',
           materialName: 'XX',
           materialAmount: 233,
@@ -112,8 +112,8 @@ export default {
           createTime: '2016:11:11'
         },
         {
-          id: '6',
-          orderId: '15',
+          id: '7',
+          orderId: '9',
           materialName: 'XX',
           materialAmount: 233,
           status: 0,
@@ -166,74 +166,40 @@ export default {
       console.log(row)
     },
     // 渲染东西的
-    objectSpanMethod2 ({ row, column, rowIndex, columnIndex }) {
-      if (columnIndex === 0) { // 只在第一列上应用合并
-        // if (rowIndex === 0) { // 第一行始终显示
-        //   return {
-        //     rowspan: 1,
-        //     colspan: 1
-        //   }
-        // }
-
-        // 检查当前行和前一行的 orderId 是否相同
-        const prevRow = this.tableData[rowIndex - 1] || null
-        if (prevRow.orderId === row.orderId || prevRow === null) {
-          // 如果相同，则当前单元格不需要显示，合并到上一行
-          return {
-            rowspan: 0,
-            colspan: 0
-          }
-        } else {
-          // 计算当前 orderId 连续的行数
-          const currentRow = row
-          let rowspan = 1
-          while (
-            rowIndex + rowspan < this.tableData.length &&
-            this.tableData[rowIndex + rowspan].orderId === currentRow.orderId
-          ) {
+    // objectSpanMethod ({ row, column, rowIndex, columnIndex }) {
+    //   debugger
+    //   if (columnIndex === 0) {
+    //     if (this.preOrderId === null || this.preOrderId !== row.orderId) {
+    //       this.preOrderId = row.orderId
+    //       const count = this.orderIdMap.get(row.orderId)
+    //       return {
+    //         rowspan: count,
+    //         colspan: 1
+    //       }
+    //     } else {
+    //       return {
+    //         rowspan: 0,
+    //         colspan: 0
+    //       }
+    //     }
+    //   }
+    // }
+    objectSpanMethod ({ row, column, rowIndex, columnIndex }) {
+      if (columnIndex === 0) {
+        const orderId = row.orderId
+        let rowspan = 1
+        // 计算当前 orderId 的行数
+        for (let i = rowIndex + 1; i < this.tableData.length; i++) {
+          if (this.tableData[i].orderId === orderId) {
             rowspan++
+          } else {
+            break
           }
-          // 返回合并单元格的配置
+        }
+        // 如果当前行是第一个 orderId 出现的位置，则合并
+        if (rowIndex === 0 || this.tableData[rowIndex - 1].orderId !== orderId) {
           return {
             rowspan,
-            colspan: 1
-          }
-        }
-      }
-    },
-    objectSpanMethod1 ({ row, column, rowIndex, columnIndex }) {
-      debugger
-      if (columnIndex === 0) {
-        if (this.preOrderId !== null && this.preOrderId !== '') {
-          if (!this.rowMap.has(rowIndex)) {
-            this.rowMap.add(rowIndex)
-            if (this.preOrderId !== row.orderId) {
-              this.preOrderId = row.orderId
-              console.log(this.orderIdMap.get(row.orderId))
-              return {
-                rowspan: this.orderIdMap.get(row.orderId),
-                colspan: 1
-              }
-            }
-          }
-        } else {
-          this.preOrderId = row.orderId
-          this.rowMap.add(rowIndex)
-          return {
-            rowspan: this.orderIdMap.get(row.orderId),
-            colspan: 1
-          }
-        }
-      }
-    },
-    objectSpanMethod ({ row, column, rowIndex, columnIndex }) {
-      debugger
-      if (columnIndex === 0) {
-        if (this.preOrderId === null || this.preOrderId !== row.orderId) {
-          this.preOrderId = row.orderId
-          const count = this.orderIdMap.get(row.orderId)
-          return {
-            rowspan: count,
             colspan: 1
           }
         } else {
