@@ -16,7 +16,8 @@
                   <el-input v-model="searchForm.type" placeholder="请输入内容"></el-input>
                 </el-form-item>
                 <el-form-item>
-                  <el-button type="primary" icon="el-icon-search" @click="searchOrder">搜索</el-button>
+                  <el-button type="primary" icon="el-icon-search" @click="searchMaterial">搜索</el-button>
+                  <el-button type="primary" icon="el-icon-refresh" @click="reset">重置</el-button>
                 </el-form-item>
               </el-form>
             </div>
@@ -46,7 +47,7 @@
                 label="操作"
                 width="100">
                 <template slot-scope="scope">
-                  <el-button @click="selectClick(scope.row)" type="text" size="small">选择</el-button>
+                  <el-button @click="selectClick(scope.row)" type="text" >选择</el-button>
                 </template>
               </el-table-column>
             </el-table>
@@ -66,11 +67,20 @@
           <el-main>
             <el-table
               :data="resultTable"
-              height="250"
+              height="600"
               stripe>
               <el-table-column
-                type="selection"
-              ></el-table-column>
+              width="60px">
+                <template slot-scope="scope">
+                  <el-button
+                    type="danger"
+                    icon="el-icon-delete"
+                    circle
+                    size="mini"
+                    @click="remove(scope.row, scope.$index)"
+                  ></el-button>
+                </template>
+              </el-table-column>
               <el-table-column
                 prop="name"
                 label="名称">
@@ -99,6 +109,9 @@
               </el-table-column>
             </el-table>
           </el-main>
+          <el-footer style="display: flex; justify-content: center; align-items: center; height: 50px;">
+            <el-button @click="submitApplyMaterial" type="primary" >提交申请</el-button>
+          </el-footer>
         </el-container>
       </div>
     </div>
@@ -121,6 +134,8 @@ export default {
   },
   data () {
     return {
+      pageSize: 5,
+      currentPage: 1,
       materialList: [
         {
           id: '1',
@@ -164,6 +179,7 @@ export default {
         }
       ],
       searchForm: {
+        name: '',
         orderId: '',
         status: '',
         page: 1,
@@ -172,32 +188,62 @@ export default {
       resultTable: []
     }
   },
-  created () {
+  mounted () {
     this.searchMaterial()
   },
   methods: {
+    // 分页查询
+    currentPageChange (val) {
+      this.searchForm.page = val
+      this.currentPage = val
+      this.searchMaterial()
+    },
     // 关闭遮盖层
     closeModal () {
-      this.showMaterial = false
       this.$emit('closeModal')
     },
     // 查询材料
     searchMaterial () {
     },
-    // 选择材料
+    // 选择材料-数量
     handleChange (value, direction, movedKeys) {
       console.log(value, direction, movedKeys)
     },
     selectClick (row) {
-      debugger
       if (!this.selectSet) {
         this.selectSet = new Set()
       }
       if (!this.selectSet.has(row.id)) {
         this.selectSet.add(row.id)
-        this.resultTable.push(row)
+        this.resultTable.push({ ...row, quantity: 1 })
+      } else {
+        this.$message({
+          message: '这条数据已经选择过了哦~',
+          type: 'warning',
+          customClass: 'messageClass'
+        })
       }
-    }
+    },
+    // 移除右边选中的材料
+    remove (row, i) {
+      if (this.resultTable && this.resultTable.length > i) {
+        // 使用splice方法从数组中移除指定索引的元素
+        this.resultTable.splice(i, 1)
+        // 如果你的Set中也存储了id，你也需要移除它
+        if (this.selectSet && this.selectSet.has(row.id)) {
+          const obj = this.selectSet
+          this.selectSet = obj
+          this.selectSet.delete(row.id)
+        }
+      }
+    },
+    // 重置思索栏
+    reset () {
+      this.searchForm.name = ''
+      this.searchForm.status = ''
+    },
+    // 提交申请材料表
+    submitApplyMaterial () {}
   }
 }
 </script>
@@ -212,7 +258,7 @@ export default {
     left: 0;
     height: 100%;
     background-color: rgba(0, 0, 0, 0.5); /* 半透明背景 */
-    z-index: 9998; /* 确保z-index比其他元素高 */
+    z-index: 10; /* 确保z-index比其他元素高 */
   }
 
   .modal-content {
@@ -242,6 +288,13 @@ export default {
     font-weight: bold;
     cursor: pointer;
   }
+  .messageClass{
+    z-index: 99999999 !important;
+  }
+
+   .el-message {
+     z-index: 99999999 !important;
+   }
 
   .close:hover,
   .close:focus {

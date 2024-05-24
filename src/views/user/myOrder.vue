@@ -19,7 +19,6 @@
             ref="singleTable"
             :data="tableData"
             highlight-current-row
-            @current-change="handleCurrentChange"
             style="width: 100%">
             <el-table-column
               type="index"
@@ -31,7 +30,7 @@
               width="80">
             </el-table-column>
             <el-table-column
-              property="userNumber"
+              property="userPhone"
               label="联系电话">
             </el-table-column>
             <el-table-column
@@ -47,7 +46,7 @@
               label="sn编号">
             </el-table-column>
             <el-table-column
-              property="desc"
+              property="description"
               label="故障描述">
             </el-table-column>
             <el-table-column
@@ -73,8 +72,6 @@
                 <el-button v-if="scope.row.status===1" @click="confirmOrder(scope.row)" type="text">确认工单</el-button>
                 <el-button v-if="scope.row.status===1  || scope.row.status===14" @click="cancelOrder(scope.row)" type="text">取消工单</el-button>
                 <el-button v-if="scope.row.status===21" type="text" class="green-button">去支付</el-button>
-<!--                <el-button v-if="scope.row.status===3" type="text" class="red-button">您已经取消工单</el-button>-->
-<!--                <el-button v-if="scope.row.status===17" type="text" class="red-button">维修失败</el-button>-->
               </template>
             </el-table-column>
           </el-table>
@@ -90,12 +87,12 @@
         </div>
       </el-footer>
     </el-container>
-    <order-info :showModal="showModal" @closeModal="closeModal" :orderId="orderId"></order-info>
+    <order-info :isUser="true" :orderInfo="orderInfo" :showModal="showModal" @closeModal="closeModal" :orderId="orderId"></order-info>
   </d2-container>
 </template>
 
 <script>
-import { UserSearchOrder, UserConfirmOrder } from '@/api/comment/repairOrder'
+import { UserSearchOrder, UserConfirmOrder} from '@/api/comment/repairOrder'
 export default {
   data () {
     return {
@@ -103,71 +100,14 @@ export default {
       currentPage: 1,
       total: '',
       searchForm: {
-        status: '',
+        userId: null,
+        status: null,
         page: 1,
         pageSize: 5
       },
-      tableData: [{
-        id: '',
-        userName: '肖战',
-        userNumber: '110',
-        userAddr: '花果山水帘洞',
-        goodsInfo: '不知道',
-        sn: 'asdasdsd',
-        desc: '就是死了',
-        status: 2,
-        statusInfo: '待用户确认',
-        createTime: '2024-05-16 10:32'
-      },
-      {
-        id: '',
-        userName: '肖战',
-        userNumber: '110',
-        userAddr: '花果山水帘洞',
-        goodsInfo: '不知道',
-        sn: 'asdasdsd',
-        desc: '就是死了',
-        status: 1,
-        statusInfo: '待确认工单',
-        createTime: '2024-05-16 10:32'
-      },
-      {
-        id: '',
-        userName: '肖战',
-        userNumber: '110',
-        userAddr: '花果山水帘洞',
-        goodsInfo: '不知道',
-        sn: 'asdasdsd',
-        desc: '就是死了',
-        status: 21,
-        statusInfo: '待支付',
-        createTime: '2024-05-16 10:32'
-      },
-      {
-        id: '',
-        userName: '肖战',
-        userNumber: '110',
-        userAddr: '花果山水帘洞',
-        goodsInfo: '不知道',
-        sn: 'asdasdsd',
-        desc: '就是死了',
-        status: 3,
-        statusInfo: '已取消工单',
-        createTime: '2024-05-16 10:32'
-      },
-      {
-        id: '',
-        userName: '肖战',
-        userNumber: '110',
-        userAddr: '花果山水帘洞',
-        goodsInfo: '不知道',
-        sn: 'asdasdsd',
-        desc: '就是死了',
-        status: 17,
-        statusInfo: '维修失败',
-        createTime: '2024-05-16 10:32'
-      }
-      ],
+      // 传给子组件的维修工单
+      orderInfo: null,
+      tableData: [],
       currentRow: null,
       // 用于控制遮盖层
       showModal: false,
@@ -191,10 +131,15 @@ export default {
     searchOrder () {
       UserSearchOrder(this.searchForm)
         .then((data) => {
-          this.tableData = this.data.data.records
-          this.total = this.data.data.total
+          debugger
+          this.tableData = data.data.data.records
+          this.total = data.data.total
+          this.$message({
+            message: '查询成功',
+            type: 'success'
+          })
         }).catch(error => {
-        // TODO 需要完善
+          this.$message.error('查询失败')
           console.error('Error fetching data:', error)
         })
     },
@@ -203,11 +148,11 @@ export default {
       UserConfirmOrder(row.id)
         .then((data) => {
           this.$message({
-            message: data.data.msg,
+            message: '确认工单成功',
             type: 'success'
           })
+          this.searchOrder()
         }).catch(error => {
-          // TODO 需要完善
           console.error('Error fetching data:', error)
           this.$message.error('确认工单失败')
         })
@@ -218,8 +163,18 @@ export default {
     },
     // 查看订单详情
     searchOrderInfo (id) {
-      this.showModal = true
-      this.orderId = id
+      UserSearchOrder({
+        id: id,
+        page: 1,
+        pageSize: 5
+      })
+        .then((data) => {
+          this.orderInfo = data.data.data.records[0]
+          this.showModal = true
+          this.orderId = id
+        }).catch(error => {
+          console.error('Error fetching data:', error)
+        })
     },
     // 关闭遮盖层
     closeModal () {

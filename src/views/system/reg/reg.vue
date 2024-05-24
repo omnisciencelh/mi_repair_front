@@ -31,10 +31,10 @@
           <div class="page-reg--form">
             <el-card shadow="never">
               <el-form
-                ref="loginForm"
+                ref="formReg"
                 label-position="top"
                 :rules="rules"
-                :model="formLogin"
+                :model="formReg"
                 size="default">
                 <el-form-item prop="username">
                   <el-switch
@@ -46,39 +46,46 @@
                     >
                   </el-switch>
                 </el-form-item>
-                <el-form-item prop="username">
+                <el-form-item prop="userName">
                   <el-input
                     type="text"
-                    v-model="formLogin.username"
-                    placeholder="账户">
-                  </el-input>
-                </el-form-item>
-                <el-form-item prop="password">
-                  <el-input
-                    type="password"
-                    v-model="formLogin.password"
-                    placeholder="密码">
-                  </el-input>
-                </el-form-item>
-                <el-form-item prop="password">
-                  <el-input
-                    type="password"
-                    v-model="formLogin.confirm"
-                    placeholder="密码">
+                    v-model="formReg.userName"
+                    placeholder="登录账户">
                   </el-input>
                 </el-form-item>
                 <el-form-item prop="name">
                   <el-input
                     type="text"
-                    v-model="formLogin.name"
+                    v-model="formReg.name"
                     placeholder="姓名">
                   </el-input>
                 </el-form-item>
-                <el-form-item prop="username">
+                <el-form-item>
                   <el-input
                     type="text"
-                    v-model="formLogin.address"
+                    v-model="formReg.phone"
+                    placeholder="手机号">
+                  </el-input>
+                </el-form-item>
+                <el-form-item prop="username" v-if="!isWorder">
+                  <el-input
+                    type="text"
+                    v-model="formReg.address"
                     placeholder="地址">
+                  </el-input>
+                </el-form-item>
+                <el-form-item prop="password">
+                  <el-input
+                    type="password"
+                    v-model="formReg.password"
+                    placeholder="密码">
+                  </el-input>
+                </el-form-item>
+                <el-form-item prop="password">
+                  <el-input
+                    type="password"
+                    v-model="confirmPassword"
+                    placeholder="确认密码">
                   </el-input>
                 </el-form-item>
                 <el-button
@@ -86,15 +93,13 @@
                   @click="submit"
                   type="primary"
                   class="button-login">
-                  登录
+                  注册
                 </el-button>
               </el-form>
             </el-card>
             <p
               class="page-login--options"
               flex="main:justify cross:center">
-<!--              <span><d2-icon name="question-circle"/> 忘记密码</span>-->
-<!--              <span>用户登录</span>-->
               <router-link to="/login" tag="span">用户登录</router-link>
             </p>
             <!-- quick login -->
@@ -120,28 +125,16 @@
         </div>
       </div>
     </div>
-    <el-dialog
-      title="快速选择用户"
-      :visible.sync="dialogVisible"
-      width="400px">
-      <el-row :gutter="10" style="margin: -20px 0px -10px 0px;">
-        <el-col v-for="(user, index) in users" :key="index" :span="8">
-          <div class="page-login--quick-user" @click="handleUserBtnClick(user)">
-            <d2-icon name="user-circle-o"/>
-            <span>{{user.name}}</span>
-          </div>
-        </el-col>
-      </el-row>
-    </el-dialog>
   </div>
 </template>
 
 <script>
 import dayjs from 'dayjs'
+import router from '@/router'
 import { mapActions } from 'vuex'
 import localeMixin from '@/locales/mixin.js'
-import { login } from '@/api/comment/login'
-import { WorkerLogin } from '@/api/comment/workerLogin'
+import { register } from '@/api/comment/login'
+import { WorkerReg } from '@/api/comment/workerLogin'
 export default {
   mixins: [
     localeMixin
@@ -151,45 +144,41 @@ export default {
       isWorder: true,
       timeInterval: null,
       time: dayjs().format('HH:mm:ss'),
-      // 快速选择用户
-      dialogVisible: false,
-      users: [
-        {
-          name: 'Admin',
-          username: 'admin',
-          password: 'admin'
-        }
-      ],
+      // 确认密码
+      confirmPassword: '',
       // 表单
-      formLogin: {
+      formReg: {
         username: '',
         password: '',
         name: '',
-        confirm: '',
-        address: ''
+        address: '',
+        phone: ''
       },
       // 表单校验
       rules: {
-        username: [
+        name: [
           {
             required: true,
             message: '请输入用户名',
             trigger: 'blur'
-          }
+          },
+          { min: 1, max: 20, message: '长度在 1 到 20 个字符', trigger: 'blur' }
+        ],
+        userName: [
+          {
+            required: true,
+            message: '请输入用户名',
+            trigger: 'blur'
+          },
+          { min: 1, max: 20, message: '长度在 1 到 20 个字符', trigger: 'blur' }
         ],
         password: [
           {
             required: true,
             message: '请输入密码',
             trigger: 'blur'
-          }
-        ],
-        code: [
-          {
-            required: true,
-            message: '请输入验证码',
-            trigger: 'blur'
-          }
+          },
+          { min: 1, max: 10, message: '长度在 1 到 10 个字符', trigger: 'blur' }
         ]
       }
     }
@@ -210,40 +199,42 @@ export default {
       this.time = dayjs().format('HH:mm:ss')
     },
     /**
-     * @description 接收选择一个用户快速登录的事件
-     * @param {Object} user 用户信息
-     */
-    handleUserBtnClick (user) {
-      this.formLogin.username = user.username
-      this.formLogin.password = user.password
-      this.submit()
-    },
-    /**
      * @description 提交表单
      */
     // 提交登录信息
     submit () {
-      console.log(process.env.VUE_APP_API)
-      console.log('走到了')
-      this.$refs.loginForm.validate((valid) => {
+      if (this.formReg.password !== this.confirmPassword) {
+        this.$message.error('两次密码不一致')
+        return
+      }
+      const phoneRegex = /^1[3-9]\d{9}$/
+      if (!phoneRegex.test(this.formReg.phone)) {
+        this.$message.error('手机号格式不正确')
+        return
+      }
+      // 最后一关验证
+      this.$refs.formReg.validate((valid) => {
         if (valid) {
           if (this.isWorder) {
-            WorkerLogin({
-              name: this.formLogin.username,
-              password: this.formLogin.password
+            WorkerReg({
+              name: this.formReg.name,
+              workerName: this.formReg.userName,
+              password: this.formReg.password,
+              phone: this.formReg.phone
             })
               .then((data) => {
-                this.login({ username: data.data.data.name, password: data.data.data.name })
-                this.$router.replace(this.$route.query.redirect || '/')
+                router.push({ name: 'login' })
               })
           } else {
-            login({
-              name: this.formLogin.username,
-              password: this.formLogin.password
+            register({
+              name: this.formReg.name,
+              userName: this.formReg.userName,
+              password: this.formReg.password,
+              phone: this.formReg.phone,
+              addr: this.formReg.address
             })
               .then((data) => {
-                this.login({ username: data.data.data.name, password: data.data.data.name })
-                this.$router.replace(this.$route.query.redirect || '/')
+                router.push({ name: 'login' })
               })
           }
         } else {

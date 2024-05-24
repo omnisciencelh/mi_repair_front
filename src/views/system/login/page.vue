@@ -160,13 +160,6 @@ export default {
             message: '请输入密码',
             trigger: 'blur'
           }
-        ],
-        code: [
-          {
-            required: true,
-            message: '请输入验证码',
-            trigger: 'blur'
-          }
         ]
       }
     }
@@ -200,8 +193,6 @@ export default {
      */
     // 提交登录信息
     submit () {
-      console.log(process.env.VUE_APP_API)
-      console.log('走到了')
       this.$refs.loginForm.validate((valid) => {
         if (valid) {
           if (this.isWorder) {

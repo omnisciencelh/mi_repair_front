@@ -19,7 +19,6 @@
             ref="singleTable"
             :data="tableData"
             highlight-current-row
-            @current-change="handleCurrentChange"
             style="width: 100%">
             <el-table-column
               type="index"
@@ -27,11 +26,10 @@
             </el-table-column>
             <el-table-column
               property="userName"
-              label="姓名"
-              width="60">
+              label="姓名">
             </el-table-column>
             <el-table-column
-              property="userNumber"
+              property="userPhone"
               label="联系电话">
             </el-table-column>
             <el-table-column
@@ -47,7 +45,7 @@
               label="sn编号">
             </el-table-column>
             <el-table-column
-              property="desc"
+              property="description"
               label="故障描述">
             </el-table-column>
             <el-table-column
@@ -68,13 +66,14 @@
               label="操作"
               width="300">
               <template slot-scope="scope">
-                <el-button @click="searchOrderInfo(scope.row.id)" type="text">查看详情</el-button>
+                <el-button @click="searchOrderInfo(scope.row.id,scope.$index)" type="text">查看详情</el-button>
                 <el-button v-if="scope.row.status===0" @click="acceptOrder(scope.row)" type="text">接单</el-button>
                 <el-button v-if="scope.row.status!==0" @click="scheduleSearch(scope.row)" type="text">进度查询</el-button>
                 <el-button v-if="scope.row.status===15" @click="repairOver(scope.row)" type="text">维修完毕</el-button>
                 <el-button v-if="scope.row.status===15" @click="repairFail(scope.row)" type="text">维修失败</el-button>
-                <el-button v-if="scope.row.status===2" @click="applyMaterial(scope.row.id)" type="text">申请材料</el-button>
-                <el-button v-if="scope.row.status===16" @click="ReInspectionSuccess(scope.row)" type="text">复检成功</el-button>
+                <el-button v-if="scope.row.status===13" @click="applyMaterial(scope.row.id)" type="text">申请材料</el-button>
+                <el-button v-if="scope.row.status===2" @click="uploadFile(scope.row.id)" type="text">上传图片</el-button>
+                <el-button v-if="scope.row.status===16" @click="ReInspectionSuccess(scope.row.id)" type="text">复检成功</el-button>
               </template>
             </el-table-column>
           </el-table>
@@ -90,8 +89,9 @@
         </div>
       </el-footer>
     </el-container>
-    <order-info :showModal="showModal" @closeModal="closeModal" :orderId="orderId"></order-info>
+    <order-info :showModal="showModal" :orderInfo="orderInfo" @closeModal="closeModal" :orderId="orderId"></order-info>
     <apply-ma :showMaterial="showMaterial" @closeModal="closeModal" :orderId="orderId"></apply-ma>
+    <upload-file :showUpload="showUpload" :fileType="fileType" @closeModal="closeModal" :orderId="orderId"></upload-file>
   </d2-container>
 </template>
 
@@ -109,85 +109,19 @@ export default {
         page: 1,
         pageSize: 5
       },
-      tableData: [{
-        id: '',
-        userName: '肖战',
-        userNumber: '110',
-        userAddr: '花果山水帘洞',
-        goodsInfo: '不知道',
-        sn: 'asdasdsd',
-        desc: '就是死了',
-        status: 0,
-        statusInfo: '待用户确认',
-        createTime: '2024-05-16 10:32'
-      },
-      {
-        id: '',
-        userName: '肖战',
-        userNumber: '110',
-        userAddr: '花果山水帘洞',
-        goodsInfo: '不知道',
-        sn: 'asdasdsd',
-        desc: '就是死了',
-        status: 15,
-        statusInfo: '维修完毕',
-        createTime: '2024-05-16 10:32'
-      },
-      {
-        id: '',
-        userName: '肖战',
-        userNumber: '110',
-        userAddr: '花果山水帘洞',
-        goodsInfo: '不知道',
-        sn: 'asdasdsd',
-        desc: '就是死了',
-        status: 2,
-        statusInfo: '申请材料',
-        createTime: '2024-05-16 10:32'
-      },
-      {
-        id: '',
-        userName: '肖战',
-        userNumber: '110',
-        userAddr: '花果山水帘洞',
-        goodsInfo: '不知道',
-        sn: 'asdasdsd',
-        desc: '就是死了',
-        status: 3,
-        statusInfo: '用户已取消工单',
-        createTime: '2024-05-16 10:32'
-      },
-      {
-        id: '',
-        userName: '肖战',
-        userNumber: '110',
-        userAddr: '花果山水帘洞',
-        goodsInfo: '不知道',
-        sn: 'asdasdsd',
-        desc: '就是死了',
-        status: 16,
-        statusInfo: '复检成功',
-        createTime: '2024-05-16 10:32'
-      },
-      {
-        id: '',
-        userName: '肖战',
-        userNumber: '110',
-        userAddr: '花果山水帘洞',
-        goodsInfo: '不知道',
-        sn: 'asdasdsd',
-        desc: '就是死了',
-        status: 17,
-        statusInfo: '维修失败',
-        createTime: '2024-05-16 10:32'
-      }
-      ],
+      // 工单详情
+      orderInfo: null,
+      tableData: [],
       // 用于控制遮盖层
       showModal: false,
       // 用户查询工单详情
       orderId: '',
       // 用于控制申请材料表的遮盖层
-      showMaterial: false
+      showMaterial: false,
+      // 控制上传文件遮罩层
+      showUpload: false,
+      // 表示上传文件地类型
+      fileType: ''
     }
   },
   created () {
@@ -205,11 +139,11 @@ export default {
       WorkerAcceptOrder(row.id)
         .then((data) => {
           this.$message({
-            message: data.data.msg,
+            message: '接单成功',
             type: 'success'
           })
+          this.searchOrder()
         }).catch(error => {
-        // TODO 需要完善
           this.$message.error('接单失败')
           console.error('Error fetching data:', error)
         })
@@ -218,10 +152,14 @@ export default {
     searchOrder () {
       WorkerSearchOrder(this.searchForm)
         .then((data) => {
-          this.tableData = this.data.data.records
-          this.total = this.data.data.total
+          this.tableData = data.data.data.records
+          this.total = data.data.data.total
+          this.$message({
+            message: '查询成功',
+            type: 'success'
+          })
         }).catch(error => {
-        // TODO 需要完善
+          this.$message.error('查询失败')
           console.error('Error fetching data:', error)
         })
     },
@@ -229,23 +167,35 @@ export default {
     repairOver () {},
     // 维修失败
     repairFail (id) {},
-    // 复检成功
-    ReInspectionSuccess () {},
     // 进度查询
     scheduleSearch (row) {},
     // 查看订单详情
-    searchOrderInfo (id) {
+    searchOrderInfo (id, i) {
       this.showModal = true
       this.orderId = id
+      this.orderInfo = this.tableData[i]
     },
     // 关闭工单详情的遮盖层
     closeModal () {
       this.showModal = false
       this.showMaterial = false
+      this.showUpload = false
     },
     // 申请材料
     applyMaterial (id) {
       this.showMaterial = true
+    },
+    // 复检成功----这里有这上传视频的功能
+    ReInspectionSuccess (id) {
+      this.orderId = id
+      this.showUpload = true
+      this.fileType = 'video'
+    },
+    // 上传图片文件
+    uploadFile (id) {
+      this.orderId = id
+      this.showUpload = true
+      this.fileType = 'image'
     }
   }
 }

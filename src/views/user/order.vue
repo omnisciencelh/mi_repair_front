@@ -8,8 +8,8 @@
             <el-form-item label="用户名称" prop="userName">
               <el-input v-model="repairOrder.userName" placeholder="请输入用户昵称"></el-input>
             </el-form-item>
-            <el-form-item label="手机号码" prop="userNumber">
-              <el-input v-model="repairOrder.userNumber" placeholder="请输入电话号码"></el-input>
+            <el-form-item label="手机号码">
+              <el-input v-model="repairOrder.userPhone" placeholder="请输入电话号码"></el-input>
             </el-form-item>
             <el-form-item label="地址" prop="userAddr">
               <el-input v-model="repairOrder.userAddr" placeholder="请输入用户地址"></el-input>
@@ -48,7 +48,7 @@ export default {
       labelPosition: 'right',
       repairOrder: {
         userName: '',
-        userNumber: '',
+        userPhone: '',
         userAddr: '',
         goodsInfo: '',
         sn: '',
@@ -59,15 +59,12 @@ export default {
           { required: true, message: '请输入用户名', trigger: 'blur' },
           { min: 1, message: '长度在 3 到 5 个字符', trigger: 'blur' }
         ],
-        userNumber: [
-          { required: true, message: '请输入正确的手机号', trigger: 'blur' }
-        ],
         userAddr: [
           { required: true, message: '请输入用户地址', trigger: 'blur' },
           { min: 1, message: '请输入用户地址', trigger: 'blur' }
         ],
         sn: [
-          { required: true, message: '请至少选择一个sn信息', trigger: 'change' },
+          { required: true, message: '请输入sn信息', trigger: 'change' },
           { min: 1, max: 15, message: '长度在 1 到 15 个字符', trigger: 'blur' }
         ],
         desc: [
@@ -77,11 +74,10 @@ export default {
     }
   },
   methods: {
-    submitForm (formName) {
+    submitForm () {
       this.$refs.repairForm.validate((valid) => {
         const phoneRegex = /^1[3-9]\d{9}$/
-        const phone = this.repairOrder.userNumber
-        if (!phoneRegex.test(phone)) {
+        if (!phoneRegex.test(this.repairOrder.userPhone)) {
           this.$message.error('手机号格式不正确')
           return false
         }
@@ -89,18 +85,21 @@ export default {
           UserRepairOrder(this.repairOrder)
             .then((data) => {
               this.$message({
-                message: data.data.msg,
+                message: '下单成功',
                 type: 'success'
               })
+              this.resetForm()
             })
         } else {
-          console.log('error submit!!')
+          this.$message.error('下单失败')
           return false
         }
       })
     },
-    resetForm (formName) {
-      this.$refs[formName].resetFields()
+    resetForm () {
+      Object.keys(this.repairOrder).forEach(key => {
+        this.repairOrder[key] = ''
+      })
     }
   }
 }

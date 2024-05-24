@@ -31,8 +31,8 @@ export const menuHeader = supplementPath([
     icon: 'folder-o',
     children: [
       { path: '/repairList', title: '工单列表' },
-      { path: '/repair', title: '维修列表' },
       { path: '/applyMaterial', title: '申请材料' }
+      // { path: '/repair', title: '维修列表' },
     ]
   }
 ])
@@ -53,8 +53,8 @@ export const menuAside = supplementPath([
     icon: 'folder-o',
     children: [
       { path: '/repairList', title: '工单列表' },
-      { path: '/repair', title: '我的维修列表' },
       { path: '/applyMaterial', title: '申请材料' }
+      // { path: '/repair', title: '我的维修列表' },
     ]
   }
 ])

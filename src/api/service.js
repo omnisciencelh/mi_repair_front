@@ -1,5 +1,4 @@
 import axios from 'axios'
-import Adapter from 'axios-mock-adapter'
 import { get } from 'lodash'
 import util from '@/libs/util'
 import { errorLog, errorCreate } from './tools'
@@ -20,6 +19,7 @@ function createService () {
     }
   )
   // 响应拦截
+  /**
   service.interceptors.response.use(
     response => {
       // dataAxios 是 axios 返回数据中的 data
@@ -67,6 +67,7 @@ function createService () {
       return Promise.reject(error)
     }
   )
+  **/
   return service
 }
 
@@ -79,10 +80,10 @@ function createRequestFunction (service) {
     const token = util.cookies.get('token')
     const configDefault = {
       headers: {
-        Authorization: token,
+        token: token,
         'Content-Type': get(config, 'headers.Content-Type', 'application/json')
       },
-      timeout: 5000,
+      timeout: 50000,
       baseURL: process.env.VUE_APP_API,
       data: {}
     }
@@ -95,8 +96,8 @@ export const service = createService()
 export const request = createRequestFunction(service)
 
 // 用于模拟网络请求的实例和请求方法
-export const serviceForMock = createService()
-export const requestForMock = createRequestFunction(serviceForMock)
+// export const serviceForMock = createService()
+// export const requestForMock = createRequestFunction(serviceForMock)
 
 // 网络请求数据模拟工具
-export const mock = new Adapter(serviceForMock)
+// export const mock = new Adapter(serviceForMock)

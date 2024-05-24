@@ -3,8 +3,50 @@
     <div class="modal-content">
       <span class="close" @click="closeModal">&times;</span>
       <h2 style="text-align: center;">上传文件</h2>
-      <div v-if="fileType==='image'"></div>
-      <div v-if="fileType === 'video'">上传视频</div>
+      <div v-if="fileType==='image'" style="display: flex;justify-content: center; ">
+        <el-upload
+          action="#"
+          list-type="picture-card"
+          :on-change="handleFileChange"
+          :auto-upload="false">
+          <i slot="default" class="el-icon-plus"></i>
+          <div slot="file" slot-scope="{file}">
+            <img
+              class="el-upload-list__item-thumbnail"
+              :src="file.url" alt=""
+            >
+            <span class="el-upload-list__item-actions">
+        <span
+          class="el-upload-list__item-preview"
+          @click="handlePictureCardPreview(file)"
+        >
+          <i class="el-icon-zoom-in"></i>
+        </span>
+        <span
+          v-if="!disabled"
+          class="el-upload-list__item-delete"
+          @click="handleRemove(file)"
+        >
+          <i class="el-icon-delete"></i>
+        </span>
+      </span>
+          </div>
+        </el-upload>
+        <el-dialog :visible.sync="dialogVisible">
+          <img width="100%" :src="dialogImageUrl" alt="">
+        </el-dialog>
+      </div>
+      <div v-if="fileType === 'video'" style="display: flex;justify-content: center; ">
+        <el-upload
+        class="upload-demo"
+        drag
+        action="#"
+        :on-change="handleFileChange"
+        multiple>
+        <i class="el-icon-upload"></i>
+        <div class="el-upload__text">将文件拖到此处，或<em>点击上传</em></div>
+      </el-upload>
+      </div>
     </div>
   </div>
 </template>
@@ -29,7 +71,8 @@ export default {
     return {
       dialogImageUrl: '',
       dialogVisible: false,
-      disabled: false
+      disabled: false,
+      fileList: []
     }
   },
   created () {
@@ -49,6 +92,14 @@ export default {
     // 上传图片
     upload () {
 
+    },
+    // 我的图片列表
+    handleFileChange (file, fileList) {
+      // debugger
+      // 当选择文件后，将文件添加到 fileList 数组中
+      // this.fileList = fileList.map(file => ({
+      //   ...file
+      // }))
     }
   }
 }
