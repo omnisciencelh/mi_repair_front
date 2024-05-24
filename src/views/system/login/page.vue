@@ -115,6 +115,7 @@
 </template>
 
 <script>
+import router from '@/router'
 import dayjs from 'dayjs'
 import { mapActions } from 'vuex'
 import localeMixin from '@/locales/mixin.js'
@@ -205,12 +206,12 @@ export default {
         if (valid) {
           if (this.isWorder) {
             WorkerLogin({
-              name: this.formLogin.username,
+              workerName: this.formLogin.username,
               password: this.formLogin.password
             })
               .then((data) => {
-                this.login({ username: data.data.data.name, password: data.data.data.name })
-                this.$router.replace(this.$route.query.redirect || '/')
+                this.login({ uuid: data.data.data.id, userName: data.data.data.workerName, phone: data.data.data.phone, token: data.data.data.token })
+                router.push({ name: 'index' })
               })
           } else {
             login({
@@ -218,8 +219,8 @@ export default {
               password: this.formLogin.password
             })
               .then((data) => {
-                this.login({ username: data.data.data.name, password: data.data.data.name })
-                this.$router.replace(this.$route.query.redirect || '/')
+                this.login({ uuid: data.data.data.id, userName: data.data.data.userName, phone: data.data.data.phone, token: data.data.data.token })
+                router.push({ name: 'index' })
               })
           }
         } else {
