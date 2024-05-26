@@ -12,11 +12,19 @@
                 <el-form-item label="材料名称">
                   <el-input v-model="searchForm.name" placeholder="请输入内容"></el-input>
                 </el-form-item>
-                <el-form-item label="材料类型">
-                  <el-input v-model="searchForm.type" placeholder="请输入内容"></el-input>
+                <el-form-item>
+                  <el-select v-model="searchForm.type" filterable placeholder="请选择">
+                    <el-option
+                      v-for="item in options"
+                      :key="item.value"
+                      :label="item.label"
+                      :value="item.value"
+                    >
+                    </el-option>
+                  </el-select>
                 </el-form-item>
                 <el-form-item>
-                  <el-button type="primary" icon="el-icon-search" @click="searchMaterial">搜索</el-button>
+                  <el-button type="primary" icon="el-icon-search" @click="search">搜索</el-button>
                   <el-button type="primary" icon="el-icon-refresh" @click="reset">重置</el-button>
                 </el-form-item>
               </el-form>
@@ -82,15 +90,15 @@
                 </template>
               </el-table-column>
               <el-table-column
-                prop="name"
+                prop="materialName"
                 label="名称">
               </el-table-column>
               <el-table-column
-                prop="typeInfo"
+                prop="materialTypeName"
                 label="类型">
               </el-table-column>
               <el-table-column
-                prop="price"
+                prop="priceSum"
                 label="价格">
               </el-table-column>
               <el-table-column
@@ -98,10 +106,9 @@
                 <template slot-scope="scope">
                   <!-- 这里使用scope.row来获取当前行的数据，假设你想绑定到一个名为'quantity'的字段 -->
                   <el-input-number
-                    v-model="scope.row.quantity"
+                    v-model="scope.row.materialAmount"
                     @change="handleChange(scope.$index, scope.row)"
                     :min="1"
-                    :max="scope.row.amount"
                     label="申请数量"
                     placeholder="请输入申请数量"
                   ></el-input-number>
@@ -119,7 +126,8 @@
 </template>
 
 <script>
-import { } from '@/api/comment/repairOrder'
+import { mapState } from 'vuex'
+import { getStorage, materialsApply } from '@/api/comment/storage'
 export default {
   props: {
     showMaterial: {
@@ -129,74 +137,63 @@ export default {
     orderId: {
       type: String,
       default: ''
-    },
-    selectSet: null
+    }
   },
   data () {
     return {
       pageSize: 5,
       currentPage: 1,
-      materialList: [
-        {
-          id: '1',
-          name: '玻璃XX',
-          type: 0,
-          typeInfo: '玻璃',
-          price: 23,
-          amount: 9
-        },
-        {
-          id: '2',
-          name: '玻璃XX',
-          type: 0,
-          typeInfo: '玻璃',
-          price: 23,
-          amount: 9
-        },
-        {
-          id: '3',
-          name: '玻璃XX',
-          type: 0,
-          typeInfo: '玻璃',
-          price: 23,
-          amount: 9
-        },
-        {
-          id: '4',
-          name: '玻璃XX',
-          type: 0,
-          typeInfo: '玻璃',
-          price: 23,
-          amount: 9
-        },
-        {
-          id: '5',
-          name: '玻璃XX',
-          type: 0,
-          typeInfo: '玻璃',
-          price: 23,
-          amount: 9
-        }
-      ],
+      materialList: [],
       searchForm: {
         name: '',
-        orderId: '',
-        status: '',
+        type: '',
         page: 1,
         pageSize: 5
       },
-      resultTable: []
+      // 选择器值
+      options: [{
+        value: '1',
+        label: '手机'
+      },
+      {
+        value: '2',
+        label: '车'
+      },
+      {
+        value: '3',
+        label: '手表'
+      }],
+      // 选择器中显示的值
+      valueType: '',
+      // 用于存储申请材料表
+      resultTable: [],
+      // 用与存储申请材料表
+      resultMap: null,
+      // 用于存储已经选中的storage的id
+      selectSet: null
     }
   },
   mounted () {
     this.searchMaterial()
+  },
+  computed: {
+    ...mapState('d2admin/user', [
+      'info'
+    ])
   },
   methods: {
     // 分页查询
     currentPageChange (val) {
       this.searchForm.page = val
       this.currentPage = val
-      this.searchMaterial()
+      if ((val * 5 - 4) <= this.total) {
+        this.searchMaterial()
+      } else {
+        this.$message({
+          message: '已展示全部数据',
+          type: 'warning'
+        })
+      }
     },
     // 关闭遮盖层
     closeModal () {
@@ -204,18 +201,49 @@ export default {
     },
     // 查询材料
     searchMaterial () {
+      getStorage(this.searchForm)
+        .then((data) => {
+          this.materialList = data.data.data.records
+          this.total = data.data.total
+        }).catch(error => {
+          this.$message.error('查询失败')
+          console.error('Error fetching data:', error)
+        })
+    },
+    // 点击查询按钮查询
+    search () {
+      this.searchForm.page = 1
+      this.searchMaterial()
     },
     // 选择材料-数量
-    handleChange (value, direction, movedKeys) {
-      console.log(value, direction, movedKeys)
+    handleChange (i, row) {
+      let obj = this.resultMap.get(row.id)
+      obj.priceSum = (row.price * row.materialAmount).toFixed(2)
+      this.resultMap.set(row.id, obj)
+      this.resultTable[i] = obj
     },
+    // 保证材料不会被多次选择
     selectClick (row) {
       if (!this.selectSet) {
         this.selectSet = new Set()
       }
       if (!this.selectSet.has(row.id)) {
         this.selectSet.add(row.id)
-        this.resultTable.push({ ...row, quantity: 1 })
+        if (!this.resultMap) {
+          this.resultMap = new Map()
+        }
+        this.resultMap.set(row.id, {
+          id: row.id,
+          orderId: this.orderId,
+          workerName: this.info.name,
+          materialName: row.name,
+          type: row.type,
+          materialAmount: 1,
+          materialTypeName: row.typeInfo,
+          price: row.price,
+          priceSum: row.price
+        })
+        this.resultTable.push(...this.resultMap.values())
       } else {
         this.$message({
           message: '这条数据已经选择过了哦~',
@@ -229,21 +257,35 @@ export default {
       if (this.resultTable && this.resultTable.length > i) {
         // 使用splice方法从数组中移除指定索引的元素
         this.resultTable.splice(i, 1)
-        // 如果你的Set中也存储了id，你也需要移除它
         if (this.selectSet && this.selectSet.has(row.id)) {
           const obj = this.selectSet
           this.selectSet = obj
           this.selectSet.delete(row.id)
+          this.resultMap.delete(row.id)
         }
       }
     },
     // 重置思索栏
     reset () {
       this.searchForm.name = ''
-      this.searchForm.status = ''
+      this.searchForm.type = ''
+      this.searchForm.page = 1
+      this.valueType = ''
+      this.searchMaterial()
     },
     // 提交申请材料表
-    submitApplyMaterial () {}
+    submitApplyMaterial () {
+      materialsApply(this.resultTable)
+        .then((data) => {
+          this.$message({
+            message: '申请成功',
+            type: 'success'
+          })
+        }).catch(error => {
+          this.$message.error('申请失败')
+          console.error('Error fetching data:', error)
+        })
+    }
   }
 }
 </script>

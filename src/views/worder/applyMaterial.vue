@@ -34,7 +34,7 @@
               label="价格（元）">
             </el-table-column>
             <el-table-column
-              prop="status"
+              prop="statusInfo"
               label="申请状态">
             </el-table-column>
             <el-table-column
@@ -58,6 +58,7 @@
 </template>
 
 <script>
+import { getMaterialReq } from '@/api/comment/materialReq'
 export default {
   name: 'applyMaterial',
   data () {
@@ -66,6 +67,8 @@ export default {
       currentPage: 1,
       total: '',
       searchForm: {
+        id: '',
+        materialName: '',
         status: '',
         page: 1,
         pageSize: 5
@@ -158,7 +161,16 @@ export default {
     // 进度查询
     scheduleSearch (row) {},
     // 用户查询工单
-    searchMaterial () {},
+    searchMaterial () {
+      getMaterialReq(this.searchForm)
+        .then((data) => {
+          this.tableData = data.data.data.records
+          this.total = data.data.total
+        }).catch(error => {
+          this.$message.error('查询失败')
+          console.error('Error fetching data:', error)
+        })
+    },
     // 用户确认工单
     confirmOrder (row) {},
     // 用户取消工单

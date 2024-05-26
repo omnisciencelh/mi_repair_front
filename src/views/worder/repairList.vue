@@ -184,6 +184,7 @@ export default {
     // 申请材料
     applyMaterial (id) {
       this.showMaterial = true
+      this.orderId = id
     },
     // 复检成功----这里有这上传视频的功能
     ReInspectionSuccess (id) {

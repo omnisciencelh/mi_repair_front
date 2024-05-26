@@ -131,7 +131,6 @@ export default {
     searchOrder () {
       UserSearchOrder(this.searchForm)
         .then((data) => {
-          debugger
           this.tableData = data.data.data.records
           this.total = data.data.total
           this.$message({

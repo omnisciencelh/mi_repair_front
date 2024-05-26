@@ -1,7 +1,4 @@
-// import axios from 'axios'
-
-// 假设你的后端 API 路径前缀是 '/api'
-import { request } from "@/api/service";
+import { request } from '@/api/service'
 
 const API_URL = process.env.VUE_APP_API
 
