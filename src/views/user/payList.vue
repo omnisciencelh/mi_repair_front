@@ -5,10 +5,19 @@
         <div class="search">
           <el-form :inline="true" :model="searchForm" class="demo-form-inline">
             <el-form-item label="支付状态">
-              <el-input v-model="searchForm.status" placeholder="请输入内容"></el-input>
+              <el-select v-model="searchForm.status" filterable placeholder="请选择">
+                  <el-option
+                    v-for="item in options"
+                    :key="item.value"
+                    :label="item.label"
+                    :value="item.value"
+                  >
+                  </el-option>
+                </el-select>
             </el-form-item>
             <el-form-item>
               <el-button type="primary" icon="el-icon-search" @click="searchPay">搜索</el-button>
+              <el-button type="primary" icon="el-icon-refresh" @click="reset">重置</el-button>
             </el-form-item>
           </el-form>
         </div>
@@ -19,20 +28,15 @@
             ref="singleTable"
             :data="tableData"
             highlight-current-row
-            @current-change="handleCurrentChange"
             style="width: 100%">
             <el-table-column
               type="index"
               width="50">
             </el-table-column>
             <el-table-column
-              property="repairOrder.userName"
-              label="姓名"
-              width="80">
-            </el-table-column>
-            <el-table-column
-              property="repairOrder.sn"
-              label="sn信息">
+              property="orderId"
+              label="订单号"
+              width="150">
             </el-table-column>
             <el-table-column
               property="price"
@@ -41,6 +45,11 @@
             <el-table-column
               property="statusInfo"
               label="支付状态">
+              <template slot-scope="scope">
+                <span :class="{ 'red-button': scope.row.status === 0 }">
+                  {{ scope.row.statusInfo }}
+                </span>
+              </template>
             </el-table-column>
             <el-table-column
               property="createTime"
@@ -51,8 +60,8 @@
               label="操作"
               width="250">
               <template slot-scope="scope">
-                <el-button @click="scheduleSearch(scope.row)" type="text">进度查询</el-button>
-                <el-button @click="payment(scope.row)" v-if="scope.row.repairOrder.status===21" type="text">待支付</el-button>
+                <el-button @click="searchOrderInfo(scope.row.orderId)" type="text">查看工单</el-button>
+                <el-button v-if="scope.row.status===0" @click="payment(scope.row.orderId)" type="text">去支付</el-button>
               </template>
             </el-table-column>
           </el-table>
@@ -68,10 +77,14 @@
         </div>
       </el-footer>
     </el-container>
+    <order-info :isUser="true" :orderInfo="orderInfo" :showModal="showModal" @closeModal="closeModal" :orderId="orderId"></order-info>
   </d2-container>
 </template>
 
 <script>
+import { UserSearchOrderPay } from '@/api/comment/orderPay.js'
+import { UserSearchOrder } from '@/api/comment/repairOrder'
+
 export default {
   name: 'payList',
   data () {
@@ -84,19 +97,23 @@ export default {
         page: 1,
         pageSize: 5
       },
-      tableData: [{
-        id: '',
-        repairOrder: {
-          userName: '王一博',
-          sn: 'sa345',
-          status: 21
-        },
-        price: '23',
-        status: 1,
-        statusInfo: '未支付',
-        createTime: '2024-05-16 10:32'
-      }],
-      currentRow: null
+      tableData: [],
+      // 选择器
+      options: [
+        {
+          value: '0',
+          label: '待支付'
+        }, {
+          value: '1',
+          label: '已支付'
+        }
+      ],
+      // 用于控制遮盖层
+      showModal: false,
+      // 用户查询工单详情
+      orderId: '',
+      // 传给子组件的维修工单
+      orderInfo: null
     }
   },
   created () {
@@ -119,14 +136,54 @@ export default {
     // 进度查询
     scheduleSearch (row) {},
     // 用户查询支付流水
-    searchPay () {},
+    searchPay () {
+      UserSearchOrderPay(this.searchForm)
+        .then((data) => {
+          this.tableData = data.data.records
+          this.total = data.data.total
+        }).catch(error => {
+          this.$message.error('查询失败')
+          console.error('Error fetching data:', error)
+        })
+    },
     // 用户支付支付
-    payment () {}
+    payment () {},
+    // 重置思索栏
+    reset () {
+      this.searchForm.status = ''
+      this.searchForm.page = 1
+      this.searchPay()
+    },
+    // 查看订单详情
+    searchOrderInfo (id) {
+      UserSearchOrder({
+        id: id,
+        page: 1,
+        pageSize: 5
+      })
+        .then((data) => {
+          this.orderInfo = data.data.records[0]
+          this.showModal = true
+          this.orderId = id
+        }).catch(error => {
+          console.error('Error fetching data:', error)
+        })
+    },
+    // 关闭遮盖层
+    closeModal () {
+      this.showModal = false
+    }
   }
 }
 </script>
 
 <style lang="scss">
 .table-user-pay{
+  .red-button {
+    color: red; /* 设置文本颜色为红色 */
+    background-color: transparent;
+    font-weight: 900;
+    font-size: larger;
+  }
 }
 </style>

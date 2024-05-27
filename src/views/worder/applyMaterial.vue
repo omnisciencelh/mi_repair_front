@@ -96,56 +96,7 @@ export default {
         page: 1,
         pageSize: 10
       },
-      tableData: [
-        {
-          id: '1',
-          orderId: '12',
-          materialName: '玻璃',
-          materialAmount: 233,
-          status: 0,
-          createTime: '2016:11:11'
-        },
-        {
-          id: '2',
-          orderId: '12',
-          materialName: '轮胎',
-          materialAmount: 34,
-          status: 0,
-          createTime: '2016:11:11'
-        },
-        {
-          id: '3',
-          orderId: '12',
-          materialName: '插口',
-          materialAmount: 233,
-          status: 0,
-          createTime: '2016:11:11'
-        },
-        {
-          id: '4',
-          orderId: '15',
-          materialName: 'XX',
-          materialAmount: 233,
-          status: 0,
-          createTime: '2016:11:11'
-        },
-        {
-          id: '6',
-          orderId: '15',
-          materialName: 'XX',
-          materialAmount: 233,
-          status: 0,
-          createTime: '2016:11:11'
-        },
-        {
-          id: '7',
-          orderId: '9',
-          materialName: 'XX',
-          materialAmount: 233,
-          status: 0,
-          createTime: '2016:11:11'
-        }
-      ],
+      tableData: [],
       currentRow: null,
       orderIdMap: null,
       preOrderId: '',
