@@ -117,7 +117,7 @@
             </el-table>
           </el-main>
           <el-footer style="display: flex; justify-content: center; align-items: center; height: 50px;">
-            <el-button @click="submitApplyMaterial" type="primary" >提交申请</el-button>
+            <el-button @click="submitApplyMaterial" type="primary" :disabled="disabled">提交申请</el-button>
           </el-footer>
         </el-container>
       </div>
@@ -170,7 +170,9 @@ export default {
       // 用与存储申请材料表
       resultMap: null,
       // 用于存储已经选中的storage的id
-      selectSet: null
+      selectSet: null,
+      // 当用户提交申请之后，就不可以在点击提交了
+      disabled: false
     }
   },
   mounted () {
@@ -184,9 +186,9 @@ export default {
   methods: {
     // 分页查询
     currentPageChange (val) {
-      this.searchForm.page = val
-      this.currentPage = val
-      if ((val * 5 - 4) <= this.total) {
+      if ((val * this.pageSize - (this.pageSize - 1)) <= this.total) {
+        this.searchForm.page = val
+        this.currentPage = val
         this.searchMaterial()
       } else {
         this.$message({
@@ -203,7 +205,7 @@ export default {
     searchMaterial () {
       getStorage(this.searchForm)
         .then((data) => {
-          this.materialList = data.data.data.records
+          this.materialList = data.data.records
           this.total = data.data.total
         }).catch(error => {
           this.$message.error('查询失败')
@@ -243,7 +245,13 @@ export default {
           price: row.price,
           priceSum: row.price
         })
-        this.resultTable.push(...this.resultMap.values())
+        // this.resultTable.push()
+        for (let item of this.resultMap.values()) {
+          const exists = this.resultTable.some(my => my.id === item.id);
+          if (!exists) {
+            this.resultTable.push(item)
+          }
+        }
       } else {
         this.$message({
           message: '这条数据已经选择过了哦~',
@@ -277,6 +285,7 @@ export default {
     submitApplyMaterial () {
       materialsApply(this.resultTable)
         .then((data) => {
+          this.disabled = true
           this.$message({
             message: '申请成功',
             type: 'success'

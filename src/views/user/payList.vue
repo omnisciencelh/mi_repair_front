@@ -105,9 +105,16 @@ export default {
   methods: {
     // 分页查询
     currentPageChange (val) {
-      this.searchForm.page = val
-      this.currentPage = val
-      this.searchPay()
+      if ((val * 5 - 4) <= this.total) {
+        this.searchForm.page = val
+        this.currentPage = val
+        this.searchPay()
+      } else {
+        this.$message({
+          message: '已展示全部数据',
+          type: 'warning'
+        })
+      }
     },
     // 进度查询
     scheduleSearch (row) {},

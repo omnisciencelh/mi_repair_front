@@ -2,7 +2,7 @@ import axios from 'axios'
 import { get } from 'lodash'
 import util from '@/libs/util'
 import { errorLog, errorCreate } from './tools'
-
+import router from '@/router'
 /**
  * @description 创建请求实例
  */
@@ -19,7 +19,6 @@ function createService () {
     }
   )
   // 响应拦截
-  /**
   service.interceptors.response.use(
     response => {
       // dataAxios 是 axios 返回数据中的 data
@@ -33,13 +32,9 @@ function createService () {
       } else {
         // 有 code 代表这是一个后端接口 可以进行进一步的判断
         switch (code) {
-          case 0:
+          case 1:
             // [ 示例 ] code === 0 代表没有错误
-            return dataAxios.data
-          case 'xxx':
-            // [ 示例 ] 其它和后台约定的 code
-            errorCreate(`[ code: xxx ] ${dataAxios.msg}: ${response.config.url}`)
-            break
+            return dataAxios
           default:
             // 不是正确的 code
             errorCreate(`${dataAxios.msg}: ${response.config.url}`)
@@ -51,7 +46,7 @@ function createService () {
       const status = get(error, 'response.status')
       switch (status) {
         case 400: error.message = '请求错误'; break
-        case 401: error.message = '未授权，请登录'; break
+        case 401: { error.message = '未授权，请登录'; router.push({ name: 'login' }); break }
         case 403: error.message = '拒绝访问'; break
         case 404: error.message = `请求地址出错: ${error.response.config.url}`; break
         case 408: error.message = '请求超时'; break
@@ -67,7 +62,6 @@ function createService () {
       return Promise.reject(error)
     }
   )
-  **/
   return service
 }
 

@@ -201,7 +201,7 @@ export default {
               password: this.formLogin.password
             })
               .then((data) => {
-                this.login({ uuid: data.data.data.id, userName: data.data.data.workerName, phone: data.data.data.phone, token: data.data.data.token })
+                this.login({ uuid: data.data.id, userName: data.data.workerName, phone: data.data.phone, token: data.data.token })
                 router.push({ name: 'index' })
               })
           } else {
@@ -210,7 +210,7 @@ export default {
               password: this.formLogin.password
             })
               .then((data) => {
-                this.login({ uuid: data.data.data.id, userName: data.data.data.userName, phone: data.data.data.phone, token: data.data.data.token })
+                this.login({ uuid: data.data.id, userName: data.data.userName, phone: data.data.phone, token: data.data.token })
                 router.push({ name: 'index' })
               })
           }

@@ -5,10 +5,19 @@
         <div class="search">
           <el-form :inline="true" :model="searchForm" class="demo-form-inline">
             <el-form-item label="工单状态">
-              <el-input v-model="searchForm.status" placeholder="请输入内容"></el-input>
+              <el-select v-model="searchForm.status" filterable placeholder="请选择">
+                <el-option
+                  v-for="item in options"
+                  :key="item.value"
+                  :label="item.label"
+                  :value="item.value"
+                >
+                </el-option>
+              </el-select>
             </el-form-item>
             <el-form-item>
               <el-button type="primary" icon="el-icon-search" @click="searchOrder">搜索</el-button>
+              <el-button type="primary" icon="el-icon-refresh" @click="reset">重置</el-button>
             </el-form-item>
           </el-form>
         </div>
@@ -121,7 +130,47 @@ export default {
       // 控制上传文件遮罩层
       showUpload: false,
       // 表示上传文件地类型
-      fileType: ''
+      fileType: '',
+      // 选择器值
+      options: [
+        {
+          value: '25',
+          label: '等待工程师接单'
+        }, {
+          value: '1',
+          label: '等待用户确认'
+        }, {
+          value: '2',
+          label: '用户已确认'
+        }, {
+          value: '3',
+          label: '用户已取消确认'
+        }, {
+          value: '13',
+          label: '申请材料'
+        }, {
+          value: '14',
+          label: '等待材料'
+        }, {
+          value: '15',
+          label: '维修'
+        }, {
+          value: '16',
+          label: '复检'
+        }, {
+          value: '17',
+          label: '维修失败'
+        }, {
+          value: '21',
+          label: '等待支付'
+        }, {
+          value: '22',
+          label: '已支付'
+        }, {
+          value: '24',
+          label: '已完成'
+        }
+      ]
     }
   },
   created () {
@@ -130,9 +179,16 @@ export default {
   methods: {
     // 分页查询
     currentPageChange (val) {
-      this.searchForm.page = val
-      this.currentPage = val
-      this.searchOrder()
+      if ((val * this.pageSize - (this.pageSize - 1)) <= this.total) {
+        this.searchForm.page = val
+        this.currentPage = val
+        this.searchOrder()
+      } else {
+        this.$message({
+          message: '已展示全部数据',
+          type: 'warning'
+        })
+      }
     },
     // 工程师接单
     acceptOrder (row) {
@@ -152,8 +208,8 @@ export default {
     searchOrder () {
       WorkerSearchOrder(this.searchForm)
         .then((data) => {
-          this.tableData = data.data.data.records
-          this.total = data.data.data.total
+          this.tableData = data.data.records
+          this.total = data.data.total
           this.$message({
             message: '查询成功',
             type: 'success'
@@ -197,6 +253,12 @@ export default {
       this.orderId = id
       this.showUpload = true
       this.fileType = 'image'
+    },
+    // 重置思索栏
+    reset () {
+      this.searchForm.status = ''
+      this.searchForm.page = 1
+      this.searchOrder()
     }
   }
 }
