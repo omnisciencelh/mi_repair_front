@@ -50,3 +50,19 @@ export function WorkerSearchOrder (data) {
     data: data
   })
 }
+// 工程师维修成功
+export function WorkerRepairSuccess (id) {
+  return request({
+    url: `${API_URL}/worker/orderRepair/repairSuccess?id=${id}`,
+    method: 'put',
+    data: null
+  })
+}
+// 工程师维修失败
+export function WorkerRepairFailed (id) {
+  return request({
+    url: `${API_URL}/worker/orderRepair/repairFailed?id=${id}`,
+    method: 'put',
+    data: null
+  })
+}
