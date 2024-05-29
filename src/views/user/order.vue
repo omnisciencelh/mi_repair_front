@@ -20,8 +20,8 @@
             <el-form-item label="sn信息" prop="sn">
               <el-input v-model="repairOrder.sn" placeholder="请输sn信息"></el-input>
             </el-form-item>
-            <el-form-item label="故障描述" prop="desc">
-              <el-input type="textarea" v-model="repairOrder.desc" placeholder="请输入故障描述"></el-input>
+            <el-form-item label="故障描述" prop="description">
+              <el-input type="textarea" v-model="repairOrder.description" placeholder="请输入故障描述"></el-input>
             </el-form-item>
             <el-form-item>
               <el-button
@@ -52,7 +52,7 @@ export default {
         userAddr: '',
         goodsInfo: '',
         sn: '',
-        desc: ''
+        description: ''
       },
       rules: {
         userName: [
@@ -67,7 +67,7 @@ export default {
           { required: true, message: '请输入sn信息', trigger: 'change' },
           { min: 1, max: 15, message: '长度在 1 到 15 个字符', trigger: 'blur' }
         ],
-        desc: [
+        description: [
           { required: true, message: '请填写活动形式', trigger: 'blur' }
         ]
       }

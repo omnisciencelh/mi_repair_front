@@ -77,7 +77,7 @@
               <template slot-scope="scope">
                 <el-button @click="searchOrderInfo(scope.row.id,scope.$index)" type="text">查看详情</el-button>
                 <el-button v-if="scope.row.status===0" @click="acceptOrder(scope.row)" type="text">接单</el-button>
-                <el-button v-if="scope.row.status!==0" @click="scheduleSearch(scope.row)" type="text">进度查询</el-button>
+                <el-button v-if="scope.row.status!==0" @click="scheduleSearch(scope.row.id)" type="text">进度查询</el-button>
                 <el-button v-if="scope.row.status===15" @click="repairOver(scope.row)" type="text">维修完毕</el-button>
                 <el-button v-if="scope.row.status===15" @click="repairFail(scope.row)" type="text">维修失败</el-button>
                 <el-button v-if="scope.row.status===13" @click="applyMaterial(scope.row.id)" type="text">申请材料</el-button>
@@ -101,11 +101,13 @@
     <order-info :showModal="showModal" :orderInfo="orderInfo" @closeModal="closeModal" :orderId="orderId"></order-info>
     <apply-ma :showMaterial="showMaterial" @closeModal="closeModal" :orderId="orderId"></apply-ma>
     <upload-file :showUpload="showUpload" :fileType="fileType" @closeModal="closeModal" :orderId="orderId"></upload-file>
+    <schedule :showSchedule="showSchedule" :activities="activities" @closeModal="closeModal" :orderId="orderId"></schedule>
   </d2-container>
 </template>
 
 <script>
 import { WorkerAcceptOrder, WorkerSearchOrder } from '@/api/comment/repairOrder'
+import { getSchedule } from '@/api/comment/schedule'
 export default {
   name: 'repairList',
   data () {
@@ -129,6 +131,8 @@ export default {
       showMaterial: false,
       // 控制上传文件遮罩层
       showUpload: false,
+      // 控制进度遮罩层
+      showSchedule: false,
       // 表示上传文件地类型
       fileType: '',
       // 选择器值
@@ -170,7 +174,9 @@ export default {
           value: '24',
           label: '已完成'
         }
-      ]
+      ],
+      // 进度详情
+      activities: []
     }
   },
   created () {
@@ -224,7 +230,22 @@ export default {
     // 维修失败
     repairFail (id) {},
     // 进度查询
-    scheduleSearch (row) {},
+    scheduleSearch (id) {
+      this.orderId = id
+      this.showSchedule = true
+      getSchedule({
+        orderId: id,
+        type: 1
+      })
+        .then((data) => {
+          this.orderId = id
+          this.showSchedule = true
+          this.activities = data.data.records
+        }).catch(error => {
+          this.$message.error('查询失败')
+          console.error('Error fetching data:', error)
+        })
+    },
     // 查看订单详情
     searchOrderInfo (id, i) {
       this.showModal = true
@@ -236,6 +257,7 @@ export default {
       this.showModal = false
       this.showMaterial = false
       this.showUpload = false
+      this.showSchedule = false
     },
     // 申请材料
     applyMaterial (id) {
