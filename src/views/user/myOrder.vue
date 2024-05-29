@@ -79,7 +79,7 @@
                 <el-button @click="searchOrderInfo(scope.row.id)" type="text">查看详情</el-button>
                 <el-button @click="scheduleSearch(scope.row)" type="text">进度查询</el-button>
                 <el-button v-if="scope.row.status===1" @click="confirmOrder(scope.row)" type="text">确认工单</el-button>
-                <el-button v-if="scope.row.status===1  || scope.row.status===14" @click="cancelOrder(scope.row)" type="text">取消工单</el-button>
+                <el-button v-if="scope.row.status===0 || scope.row.status===1  || scope.row.status===14" @click="cancelOrder(scope.row)" type="text">取消工单</el-button>
                 <el-button v-if="scope.row.status===21" type="text" class="green-button">去支付</el-button>
               </template>
             </el-table-column>
@@ -101,7 +101,7 @@
 </template>
 
 <script>
-import { UserSearchOrder, UserConfirmOrder } from '@/api/comment/repairOrder'
+import { UserSearchOrder, UserConfirmOrder, UserCancelOrder } from '@/api/comment/repairOrder'
 export default {
   data () {
     return {
@@ -214,6 +214,17 @@ export default {
     },
     // 用户取消工单
     cancelOrder (row) {
+      UserCancelOrder(row.id)
+        .then((data) => {
+          this.$message({
+            message: '取消工单成功',
+            type: 'success'
+          })
+          this.searchOrder()
+        }).catch(error => {
+          console.error('Error fetching data:', error)
+          this.$message.error('取消工单失败')
+        })
       console.log(row)
     },
     // 查看订单详情
