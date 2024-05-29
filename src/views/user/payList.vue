@@ -61,7 +61,7 @@
               width="250">
               <template slot-scope="scope">
                 <el-button @click="searchOrderInfo(scope.row.orderId)" type="text">查看工单</el-button>
-                <el-button v-if="scope.row.status===0" @click="payment(scope.row.orderId)" type="text">去支付</el-button>
+                <el-button v-if="scope.row.status===0" @click="payment(scope.row)" type="text">去支付</el-button>
               </template>
             </el-table-column>
           </el-table>
@@ -82,7 +82,7 @@
 </template>
 
 <script>
-import { UserSearchOrderPay } from '@/api/comment/orderPay.js'
+import { UserSearchOrderPay, UserPay } from '@/api/comment/orderPay.js'
 import { UserSearchOrder } from '@/api/comment/repairOrder'
 
 export default {
@@ -147,7 +147,22 @@ export default {
         })
     },
     // 用户支付支付
-    payment () {},
+    payment (data) {
+      UserPay(data)
+        .then((data) => {
+          let aliPay
+          aliPay = window.open();
+          aliPay.document.open();
+          let dataObj = data  //这里是后端返回的form支付表单
+          aliPay.document.write("<html><head><title></title><meta charset='utf-8'><body>"+ dataObj +"</body></html>")
+          aliPay.document.forms[0].submit()
+          aliPay.document.close()
+          this.$message.success("前往充值中...");
+        }).catch(error => {
+          this.$message.error('支付失败')
+          console.error('Error fetching data:', error)
+        })
+    },
     // 重置思索栏
     reset () {
       this.searchForm.status = ''

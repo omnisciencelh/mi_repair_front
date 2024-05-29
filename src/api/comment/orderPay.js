@@ -8,3 +8,11 @@ export function UserSearchOrderPay (data) {
     data: data
   })
 }
+// 用户下单
+export function UserPay (data) {
+  return request({
+    url: `${API_URL}/aliPay/pay`,
+    method: 'post',
+    data: data
+  })
+}
