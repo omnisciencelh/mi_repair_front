@@ -77,7 +77,7 @@
               width="300">
               <template slot-scope="scope">
                 <el-button @click="searchOrderInfo(scope.row.id)" type="text">查看详情</el-button>
-                <el-button @click="scheduleSearch(scope.row)" type="text">进度查询</el-button>
+                <el-button @click="scheduleSearch(scope.row.id)" type="text">进度查询</el-button>
                 <el-button v-if="scope.row.status===1" @click="confirmOrder(scope.row)" type="text">确认工单</el-button>
                 <el-button v-if="scope.row.status===1  || scope.row.status===14" @click="cancelOrder(scope.row)" type="text">取消工单</el-button>
                 <el-button v-if="scope.row.status===21" type="text" class="green-button">去支付</el-button>
@@ -97,10 +97,12 @@
       </el-footer>
     </el-container>
     <order-info :isUser="true" :orderInfo="orderInfo" :showModal="showModal" @closeModal="closeModal" :orderId="orderId"></order-info>
+    <schedule :showSchedule="showSchedule" :activities="activities" @closeModal="closeModal" :orderId="orderId"></schedule>
   </d2-container>
 </template>
 
 <script>
+import { getSchedule } from '@/api/comment/schedule'
 import { UserSearchOrder, UserConfirmOrder } from '@/api/comment/repairOrder'
 export default {
   data () {
@@ -120,6 +122,10 @@ export default {
       currentRow: null,
       // 用于控制遮盖层
       showModal: false,
+      // 用于控制进度表遮罩层
+      showSchedule: false,
+      // 用于存储某个order的进度
+      activities: [],
       // 用户查询工单详情
       orderId: '',
       // 选择器值
@@ -182,7 +188,20 @@ export default {
       }
     },
     // 进度查询
-    scheduleSearch (row) {},
+    scheduleSearch (id) {
+      getSchedule({
+        orderId: id,
+        type: 0
+      })
+        .then((data) => {
+          this.orderId = id
+          this.showSchedule = true
+          this.activities = data.data.records
+        }).catch(error => {
+          this.$message.error('查询失败')
+          console.error('Error fetching data:', error)
+        })
+    },
     // 用户查询工单
     searchOrder () {
       UserSearchOrder(this.searchForm)
@@ -233,6 +252,7 @@ export default {
     },
     // 关闭遮盖层
     closeModal () {
+      this.showSchedule = false
       this.showModal = false
     },
     // 重置思索栏

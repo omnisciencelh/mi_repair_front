@@ -231,8 +231,6 @@ export default {
     repairFail (id) {},
     // 进度查询
     scheduleSearch (id) {
-      this.orderId = id
-      this.showSchedule = true
       getSchedule({
         orderId: id,
         type: 1
