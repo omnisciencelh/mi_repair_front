@@ -25,6 +25,14 @@ export function UserConfirmOrder (id) {
     data: null
   })
 }
+// 用户取消工单
+export function UserCancelOrder (id) {
+  return request({
+    url: `${API_URL}/user/orderRepair/cancel?orderId=${id}`,
+    method: 'delete',
+    data: null
+  })
+}
 // 工程师接单
 export function WorkerAcceptOrder (id) {
   // 使用request函数发送注册请求，它会自动添加token
