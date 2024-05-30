@@ -11,3 +11,20 @@ export function uploadImages (data, orderId) {
     data: data
   })
 }
+
+// 预览图片
+export function preview (orderId) {
+  return request({
+    url: `${API_URL}/file/${orderId}/preview`,
+    method: 'get'
+  })
+}
+
+// 上传视频
+export function uploadVideo (file, orderId) {
+  return request({
+    url: `${API_URL}/file/${orderId}/uploadVideo`,
+    method: 'post',
+    data: file
+  })
+}

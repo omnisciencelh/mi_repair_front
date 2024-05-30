@@ -28,14 +28,14 @@
         <el-dialog :visible.sync="dialogVisible">
           <img width="100%" :src="dialogImageUrl" alt="">
         </el-dialog>
-        <el-button type="primary" @click="handleBatchUpload">确认上传</el-button>
+        <el-button :disabled="show" type="primary" @click="handleBatchUpload">确认上传</el-button>
       </div>
       <div v-if="fileType === 'video'" style="display: flex;justify-content: center; ">
         <el-upload
         class="upload-demo"
         drag
         action="#"
-        :on-change="handleFileChange"
+        :on-change="handleVideoChange"
         multiple>
         <i class="el-icon-upload"></i>
         <div class="el-upload__text">将文件拖到此处，或<em>点击上传</em></div>
@@ -46,7 +46,7 @@
 </template>
 
 <script>
-import { uploadImages } from '@/api/comment/file.js'
+import { uploadImages, uploadVideo } from '@/api/comment/file.js'
 export default {
   props: {
     showUpload: {
@@ -66,8 +66,8 @@ export default {
     return {
       dialogImageUrl: '',
       dialogVisible: false,
-      disabled: false,
-      fileList: []
+      fileList: [],
+      show: false
     }
   },
   created () {
@@ -97,6 +97,7 @@ export default {
       })
       uploadImages(formData, this.orderId)
         .then((data) => {
+          this.show = true
           this.$message({
             message: '上传成功',
             type: 'success',
@@ -116,6 +117,23 @@ export default {
           this.fileList.push(fileItem)
         }
       })
+    },
+    // 上传视频
+    handleVideoChange (file) {
+      const formData = new FormData()
+      formData.append('file', file.raw)
+      uploadVideo(formData, this.orderId)
+        .then((data) => {
+          this.$emit('closeModal')
+          this.$message({
+            message: '上传成功',
+            type: 'success',
+            customClass: 'messageClass'
+          })
+        }).catch(error => {
+          this.$message.error('上传失败')
+          console.error('Error fetching data:', error)
+        })
     }
   }
 }
