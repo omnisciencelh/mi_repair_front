@@ -83,6 +83,7 @@
                 <el-button v-if="scope.row.status===13" @click="applyMaterial(scope.row.id)" type="text">申请材料</el-button>
                 <el-button v-if="scope.row.status===2" @click="uploadFile(scope.row.id)" type="text">上传图片</el-button>
                 <el-button v-if="scope.row.status===16" @click="ReInspectionSuccess(scope.row.id)" type="text">复检成功</el-button>
+                <el-button v-if="scope.row.status===22" @click="returnDevice(scope.row.id)" type="text">归还设备</el-button>
               </template>
             </el-table-column>
           </el-table>
@@ -106,7 +107,7 @@
 </template>
 
 <script>
-import { WorkerAcceptOrder, WorkerSearchOrder, repairSuccess, repairFailed } from '@/api/comment/repairOrder'
+import { WorkerAcceptOrder, WorkerSearchOrder, repairSuccess, repairFailed, returnDevice } from '@/api/comment/repairOrder'
 import { getSchedule } from '@/api/comment/schedule'
 export default {
   name: 'repairList',
@@ -295,6 +296,20 @@ export default {
       this.searchForm.status = ''
       this.searchForm.page = 1
       this.searchOrder()
+    },
+    // 返还设备
+    returnDevice (id) {
+      returnDevice(id)
+        .then((data) => {
+          this.$message({
+            message: '返还设备成功',
+            type: 'success'
+          })
+          this.searchOrder()
+        }).catch(error => {
+          this.$message.error('返还设备失败')
+          console.error('Error fetching data:', error)
+        })
     }
   }
 }

@@ -64,3 +64,11 @@ export function repairFailed (orderId) {
     method: 'put'
   })
 }
+
+// 工程师归还设备
+export function returnDevice (orderId) {
+  return request({
+    url: `${API_URL}/worker/orderRepair/returnDevice?id=${orderId}`,
+    method: 'put'
+  })
+}
