@@ -78,8 +78,8 @@
                 <el-button @click="searchOrderInfo(scope.row.id,scope.$index)" type="text">查看详情</el-button>
                 <el-button v-if="scope.row.status===0" @click="acceptOrder(scope.row)" type="text">接单</el-button>
                 <el-button v-if="scope.row.status!==0" @click="scheduleSearch(scope.row.id)" type="text">进度查询</el-button>
-                <el-button v-if="scope.row.status===15" @click="repairOver(scope.row)" type="text">维修完毕</el-button>
-                <el-button v-if="scope.row.status===15" @click="repairFail(scope.row)" type="text">维修失败</el-button>
+                <el-button v-if="scope.row.status===15" @click="repairOver(scope.row.id)" type="text">维修完毕</el-button>
+                <el-button v-if="scope.row.status===15" @click="repairFail(scope.row.id)" type="text">维修失败</el-button>
                 <el-button v-if="scope.row.status===13" @click="applyMaterial(scope.row.id)" type="text">申请材料</el-button>
                 <el-button v-if="scope.row.status===2" @click="uploadFile(scope.row.id)" type="text">上传图片</el-button>
                 <el-button v-if="scope.row.status===16" @click="ReInspectionSuccess(scope.row.id)" type="text">复检成功</el-button>
@@ -106,7 +106,7 @@
 </template>
 
 <script>
-import { WorkerAcceptOrder, WorkerSearchOrder } from '@/api/comment/repairOrder'
+import { WorkerAcceptOrder, WorkerSearchOrder, repairSuccess, repairFailed } from '@/api/comment/repairOrder'
 import { getSchedule } from '@/api/comment/schedule'
 export default {
   name: 'repairList',
@@ -226,9 +226,25 @@ export default {
         })
     },
     // 维修完毕
-    repairOver () {},
+    repairOver (id) {
+      repairSuccess(id)
+        .then((data) => {
+          this.searchOrder()
+        }).catch(error => {
+          this.$message.error('维修完毕失败啊')
+          console.error('Error fetching data:', error)
+        })
+    },
     // 维修失败
-    repairFail (id) {},
+    repairFail (id) {
+      repairFailed(id)
+        .then((data) => {
+          this.searchOrder()
+        }).catch(error => {
+          this.$message.error('维修失败失败啊')
+          console.error('Error fetching data:', error)
+        })
+    },
     // 进度查询
     scheduleSearch (id) {
       getSchedule({
