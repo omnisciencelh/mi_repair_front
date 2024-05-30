@@ -3,7 +3,7 @@
     <div class="modal-content">
       <span class="close" @click="closeModal">&times;</span>
       <h2 style="text-align: center;">上传文件</h2>
-      <div v-if="fileType==='image'" style="display: flex;justify-content: center; ">
+      <div v-if="fileType==='image'" style="display: flex;flex-direction: column;align-items: center;justify-content: center;">
         <el-upload
           action="#"
           list-type="picture-card"
@@ -22,19 +22,13 @@
         >
           <i class="el-icon-zoom-in"></i>
         </span>
-        <span
-          v-if="!disabled"
-          class="el-upload-list__item-delete"
-          @click="handleRemove(file)"
-        >
-          <i class="el-icon-delete"></i>
-        </span>
       </span>
           </div>
         </el-upload>
         <el-dialog :visible.sync="dialogVisible">
           <img width="100%" :src="dialogImageUrl" alt="">
         </el-dialog>
+        <el-button type="primary" @click="handleBatchUpload">确认上传</el-button>
       </div>
       <div v-if="fileType === 'video'" style="display: flex;justify-content: center; ">
         <el-upload
@@ -52,6 +46,7 @@
 </template>
 
 <script>
+import { uploadImages } from '@/api/comment/file.js'
 export default {
   props: {
     showUpload: {
@@ -82,24 +77,45 @@ export default {
     closeModal () {
       this.$emit('closeModal')
     },
-    handleRemove (file) {
-      console.log(file)
-    },
     handlePictureCardPreview (file) {
       this.dialogImageUrl = file.url
       this.dialogVisible = true
     },
     // 上传图片
-    upload () {
-
+    handleBatchUpload () {
+      if (this.fileList.length === 0) {
+        this.$message({
+          message: '图片列表不为空',
+          type: 'warning',
+          customClass: 'messageClass'
+        })
+        return
+      }
+      const formData = new FormData()
+      this.fileList.forEach(file => {
+        formData.append('files', file.raw)
+      })
+      uploadImages(formData, this.orderId)
+        .then((data) => {
+          this.$message({
+            message: '上传成功',
+            type: 'success',
+            customClass: 'messageClass'
+          })
+        }).catch(error => {
+          this.$message.error('上传失败')
+          console.error('Error fetching data:', error)
+        })
     },
     // 我的图片列表
     handleFileChange (file, fileList) {
-      // debugger
-      // 当选择文件后，将文件添加到 fileList 数组中
-      // this.fileList = fileList.map(file => ({
-      //   ...file
-      // }))
+      fileList.forEach((fileItem) => {
+        // 检查文件是否已经存在于收集的文件列表中
+        if (!this.fileList.some((f) => f.uid === fileItem.uid)) {
+          // 如果文件不在列表中，添加它
+          this.fileList.push(fileItem)
+        }
+      })
     }
   }
 }
@@ -116,7 +132,7 @@ export default {
     width: 100%;
     height: 100%;
     background-color: rgba(0, 0, 0, 0.5); /* 半透明背景 */
-    z-index: 9998; /* 确保z-index比其他元素高 */
+    z-index: 10; /* 确保z-index比其他元素高 */
   }
 
   .modal-content {
@@ -140,6 +156,13 @@ export default {
     color: black;
     text-decoration: none;
     cursor: pointer;
+  }
+
+  .messageClass{
+    z-index: 99999999 !important;
+  }
+  .el-message {
+    z-index: 99999999 !important;
   }
 
   .scroll-container {

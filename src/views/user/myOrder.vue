@@ -102,7 +102,7 @@
 
 <script>
 import { getSchedule } from '@/api/comment/schedule'
-import { UserSearchOrder, UserConfirmOrder } from '@/api/comment/repairOrder'
+import { UserSearchOrder, UserConfirmOrder, UserCancelOrder } from '@/api/comment/repairOrder'
 export default {
   data () {
     return {
@@ -207,10 +207,6 @@ export default {
         .then((data) => {
           this.tableData = data.data.records
           this.total = data.data.total
-          this.$message({
-            message: '查询成功',
-            type: 'success'
-          })
         }).catch(error => {
           this.$message.error('查询失败')
           console.error('Error fetching data:', error)
