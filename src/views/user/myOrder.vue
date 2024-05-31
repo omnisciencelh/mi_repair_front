@@ -97,6 +97,7 @@
       </el-footer>
     </el-container>
     <order-info :isUser="true" :orderInfo="orderInfo" :showModal="showModal" @closeModal="closeModal" :orderId="orderId"></order-info>
+    <schedule :showSchedule="showSchedule" :activities="activities" @closeModal="closeModal" :orderId="orderId"></schedule>
   </d2-container>
 </template>
 
