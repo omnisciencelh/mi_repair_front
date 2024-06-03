@@ -290,6 +290,7 @@ export default {
             message: '申请成功',
             type: 'success'
           })
+          this.$emit('upload')
         }).catch(error => {
           this.$message.error('申请失败')
           console.error('Error fetching data:', error)

@@ -100,8 +100,8 @@
       </el-footer>
     </el-container>
     <order-info :showModal="showModal" :orderInfo="orderInfo" @closeModal="closeModal" :orderId="orderId"></order-info>
-    <apply-ma :showMaterial="showMaterial" @closeModal="closeModal" :orderId="orderId"></apply-ma>
-    <upload-file :showUpload="showUpload" :fileType="fileType" @closeModal="closeModal" :orderId="orderId"></upload-file>
+    <apply-ma :showMaterial="showMaterial" @closeModal="closeModal" @upload="uploadSucc" :orderId="orderId"></apply-ma>
+    <upload-file :showUpload="showUpload" :fileType="fileType" @closeModal="closeModal" @upload="uploadSucc" :orderId="orderId"></upload-file>
     <schedule :showSchedule="showSchedule" :activities="activities" @closeModal="closeModal" :orderId="orderId"></schedule>
   </d2-container>
 </template>
@@ -310,6 +310,10 @@ export default {
           this.$message.error('返还设备失败')
           console.error('Error fetching data:', error)
         })
+    },
+    // 上传文件完毕
+    uploadSucc () {
+      this.searchOrder()
     }
   }
 }

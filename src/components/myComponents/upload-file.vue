@@ -36,6 +36,7 @@
         drag
         action="#"
         :on-change="handleVideoChange"
+        :auto-upload="false"
         multiple>
         <i class="el-icon-upload"></i>
         <div class="el-upload__text">将文件拖到此处，或<em>点击上传</em></div>
@@ -103,6 +104,7 @@ export default {
             type: 'success',
             customClass: 'messageClass'
           })
+          this.$emit('upload')
         }).catch(error => {
           this.$message.error('上传失败')
           console.error('Error fetching data:', error)
@@ -130,6 +132,7 @@ export default {
             type: 'success',
             customClass: 'messageClass'
           })
+          this.$emit('upload')
         }).catch(error => {
           this.$message.error('上传失败')
           console.error('Error fetching data:', error)
