@@ -37,16 +37,6 @@
                 :model="formLogin"
                 size="default">
                 <el-form-item prop="username">
-                  <el-switch
-                    v-model="isWorder"
-                    inactive-text="普通用户登录"
-                    active-text="工程师登录"
-                    inactive-color="#409EFF"
-                    class="mySwitch"
-                    >
-                  </el-switch>
-                </el-form-item>
-                <el-form-item prop="username">
                   <el-input
                     type="text"
                     v-model="formLogin.username"
@@ -61,6 +51,16 @@
                     placeholder="密码">
                     <i slot="prepend" class="fa fa-keyboard-o"></i>
                   </el-input>
+                </el-form-item>
+                <el-form-item>
+                  <el-select class="mySwitch" v-model="isWorder" placeholder="请选择">
+                    <el-option
+                      v-for="item in options"
+                      :key="item.value"
+                      :label="item.label"
+                      :value="item.value">
+                    </el-option>
+                  </el-select>
                 </el-form-item>
                 <el-button
                   size="default"
@@ -161,7 +161,17 @@ export default {
             trigger: 'blur'
           }
         ]
-      }
+      },
+      // 用于登录
+      options: [
+        {
+          value: false,
+          label: '普通用户'
+        }, {
+          value: true,
+          label: '工程师'
+        }
+      ]
     }
   },
   mounted () {

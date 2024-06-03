@@ -36,15 +36,15 @@
                 :rules="rules"
                 :model="formReg"
                 size="default">
-                <el-form-item prop="username">
-                  <el-switch
-                    v-model="isWorder"
-                    inactive-text="普通用户注册"
-                    active-text="工程师注册"
-                    inactive-color="#409EFF"
-                    class="mySwitch"
-                    >
-                  </el-switch>
+                <el-form-item>
+                  <el-select class="mySwitch" v-model="isWorder" placeholder="请选择">
+                    <el-option
+                      v-for="item in options"
+                      :key="item.value"
+                      :label="item.label"
+                      :value="item.value">
+                    </el-option>
+                  </el-select>
                 </el-form-item>
                 <el-form-item prop="userName">
                   <el-input
@@ -180,7 +180,17 @@ export default {
           },
           { min: 1, max: 10, message: '长度在 1 到 10 个字符', trigger: 'blur' }
         ]
-      }
+      },
+      // 用于登录
+      options: [
+        {
+          value: false,
+          label: '普通用户注册'
+        }, {
+          value: true,
+          label: '工程师注册'
+        }
+      ]
     }
   },
   mounted () {
