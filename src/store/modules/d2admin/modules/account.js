@@ -16,7 +16,7 @@ export default {
     async login ({ dispatch }, {
       uuid = '',
       userName = '',
-      phone = '',
+      role = '',
       token = ''
     } = {}) {
       // const res = await api.SYS_USER_LOGIN({ username, password })
@@ -27,6 +27,7 @@ export default {
       // 如有必要 token 需要定时更新，默认保存一天
       util.cookies.set('uuid', uuid)
       util.cookies.set('token', token)
+      util.cookies.set('role', role)
       // 设置 vuex 用户信息
       await dispatch('d2admin/user/set', { name: userName }, { root: true })
       // 用户登录后从持久化数据加载一系列的设置

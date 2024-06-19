@@ -151,13 +151,13 @@ export default {
       UserPay(data)
         .then((data) => {
           let aliPay
-          aliPay = window.open();
-          aliPay.document.open();
-          let dataObj = data  //这里是后端返回的form支付表单
+          aliPay = window.open()
+          aliPay.document.open()
+          let dataObj = data
           aliPay.document.write("<html><head><title></title><meta charset='utf-8'><body>"+ dataObj +"</body></html>")
           aliPay.document.forms[0].submit()
           aliPay.document.close()
-          this.$message.success("前往充值中...");
+          this.$message.success('前往充值中...')
         }).catch(error => {
           this.$message.error('支付失败')
           console.error('Error fetching data:', error)
