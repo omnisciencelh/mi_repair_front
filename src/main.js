@@ -6,11 +6,12 @@ import App from './App'
 import d2Admin from '@/plugin/d2admin'
 // store
 import store from '@/store/index'
-
+import websocket from '@/api/comment/websocket'
 // 菜单和路由设置
 import router from './router'
 import { menuHeader, menuAside } from '@/menu'
 import { frameInRoutes } from '@/router/routes'
+Vue.prototype.$websocket = websocket
 // 核心插件
 Vue.use(d2Admin)
 new Vue({

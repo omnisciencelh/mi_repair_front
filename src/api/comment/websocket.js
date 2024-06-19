@@ -61,8 +61,8 @@ const reconnect = () => {
   }
   lockReconnect = true
   // 没连接上会一直重连，设置延迟避免请求过多
-  timeoutnum && clearTimeout(timeoutnum);
-  timeoutnum = setTimeout(function() {
+  timeoutnum && clearTimeout(timeoutnum)
+  timeoutnum = setTimeout(function () {
     // 新连接
     initWebSocket()
     lockReconnect = false
